@@ -1,0 +1,188 @@
+/* pages/history/index.wxss */
+.container {
+  min-height: 100vh;
+  background: #F9FAFB;
+  padding: 24rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 32rpx;
+}
+
+.empty-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 12rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #9CA3AF;
+  margin-bottom: 48rpx;
+}
+
+.empty-btn {
+  padding: 24rpx 64rpx;
+  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
+  border-radius: 24rpx;
+  color: #FFFFFF;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+/* 历史列表 */
+.history-list {
+  padding-bottom: 32rpx;
+}
+
+.history-section {
+  margin-bottom: 32rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+  padding: 0 8rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.section-time {
+  font-size: 24rpx;
+  color: #9CA3AF;
+}
+
+.history-card {
+  display: flex;
+  align-items: center;
+  padding: 28rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.card-left {
+  flex: 1;
+}
+
+.result-type {
+  display: block;
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #F43F5E;
+  margin-bottom: 4rpx;
+}
+
+.result-emoji {
+  display: block;
+  font-size: 56rpx;
+  margin-bottom: 4rpx;
+}
+
+.result-name {
+  display: block;
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.card-right {
+  text-align: right;
+}
+
+.confidence {
+  display: block;
+  font-size: 24rpx;
+  color: #10B981;
+  margin-bottom: 8rpx;
+}
+
+.result-title {
+  display: block;
+  font-size: 26rpx;
+  color: #374151;
+  margin-bottom: 8rpx;
+}
+
+.view-detail {
+  display: block;
+  font-size: 24rpx;
+  color: #F43F5E;
+}
+
+/* DISC进度条 */
+.disc-bars {
+  margin-bottom: 12rpx;
+}
+
+.disc-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+.bar-label {
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #6B7280;
+  width: 24rpx;
+}
+
+.bar-track {
+  width: 120rpx;
+  height: 8rpx;
+  background: #E5E7EB;
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #EF4444;
+  border-radius: 4rpx;
+}
+
+.bar-fill.i {
+  background: #F59E0B;
+}
+
+.bar-fill.s {
+  background: #10B981;
+}
+
+.bar-fill.c {
+  background: #3B82F6;
+}
+
+/* AI徽章 */
+.ai-badges {
+  display: flex;
+  gap: 8rpx;
+  margin-bottom: 12rpx;
+  justify-content: flex-end;
+}
+
+.ai-badge {
+  padding: 6rpx 12rpx;
+  background: #F3F4F6;
+  border-radius: 8rpx;
+  font-size: 20rpx;
+  color: #374151;
+}

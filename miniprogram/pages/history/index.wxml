@@ -1,0 +1,107 @@
+<!--pages/history/index.wxml - 测试历史记录-->
+<view class="container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!hasHistory}}">
+    <view class="empty-icon">📋</view>
+    <text class="empty-title">暂无测试记录</text>
+    <text class="empty-desc">完成测试后，记录将在这里显示</text>
+    <view class="empty-btn" bindtap="goToTest">
+      <text>去测试</text>
+    </view>
+  </view>
+
+  <!-- 有记录时 -->
+  <view class="history-list" wx:else>
+    <!-- MBTI记录 -->
+    <view class="history-section" wx:if="{{mbtiResult}}">
+      <view class="section-header">
+        <text class="section-title">🧠 MBTI性格测试</text>
+        <text class="section-time">{{mbtiResult.testTime}}</text>
+      </view>
+      <view class="history-card" bindtap="viewMBTIResult">
+        <view class="card-left">
+          <text class="result-type">{{mbtiResult.mbtiType}}</text>
+          <text class="result-name">{{mbtiResult.typeName}}</text>
+        </view>
+        <view class="card-right">
+          <text class="confidence">置信度 {{mbtiResult.confidence}}%</text>
+          <text class="view-detail">查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- DISC记录 -->
+    <view class="history-section" wx:if="{{discResult}}">
+      <view class="section-header">
+        <text class="section-title">📊 DISC行为测试</text>
+        <text class="section-time">{{discResult.testTime}}</text>
+      </view>
+      <view class="history-card" bindtap="viewDISCResult">
+        <view class="card-left">
+          <text class="result-type">{{discResult.dominantType}}型</text>
+          <text class="result-name">{{discResult.description.title}}</text>
+        </view>
+        <view class="card-right">
+          <view class="disc-bars">
+            <view class="disc-bar">
+              <text class="bar-label">D</text>
+              <view class="bar-track"><view class="bar-fill" style="width: {{discResult.percentages.D}}%"></view></view>
+            </view>
+            <view class="disc-bar">
+              <text class="bar-label">I</text>
+              <view class="bar-track"><view class="bar-fill i" style="width: {{discResult.percentages.I}}%"></view></view>
+            </view>
+            <view class="disc-bar">
+              <text class="bar-label">S</text>
+              <view class="bar-track"><view class="bar-fill s" style="width: {{discResult.percentages.S}}%"></view></view>
+            </view>
+            <view class="disc-bar">
+              <text class="bar-label">C</text>
+              <view class="bar-track"><view class="bar-fill c" style="width: {{discResult.percentages.C}}%"></view></view>
+            </view>
+          </view>
+          <text class="view-detail">查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- PDP记录 -->
+    <view class="history-section" wx:if="{{pdpResult}}">
+      <view class="section-header">
+        <text class="section-title">🦁 PDP动物性格</text>
+        <text class="section-time">{{pdpResult.testTime}}</text>
+      </view>
+      <view class="history-card" bindtap="viewPDPResult">
+        <view class="card-left">
+          <text class="result-emoji">{{pdpResult.description.emoji}}</text>
+          <text class="result-name">{{pdpResult.description.type}}</text>
+        </view>
+        <view class="card-right">
+          <text class="result-title">{{pdpResult.description.title}}</text>
+          <text class="view-detail">查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- AI分析记录 -->
+    <view class="history-section" wx:if="{{aiResult}}">
+      <view class="section-header">
+        <text class="section-title">👁️ AI人脸分析</text>
+        <text class="section-time">{{aiResult.testTime}}</text>
+      </view>
+      <view class="history-card" bindtap="viewAIResult">
+        <view class="card-left">
+          <text class="result-type">{{aiResult.mbti}}</text>
+          <text class="result-name">{{aiResult.title}}</text>
+        </view>
+        <view class="card-right">
+          <view class="ai-badges">
+            <text class="ai-badge">{{aiResult.pdpEmoji}} {{aiResult.pdp}}</text>
+            <text class="ai-badge">{{aiResult.disc}}型</text>
+          </view>
+          <text class="view-detail">查看详情 ›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

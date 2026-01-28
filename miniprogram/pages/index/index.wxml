@@ -1,0 +1,148 @@
+<!--pages/index/index.wxml - 首页（完全匹配Web端设计）-->
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="header-left">
+      <text class="header-icon">✨</text>
+      <text class="header-title">神仙团队AI性格测试</text>
+    </view>
+    <view class="header-right" bindtap="toggleEnterprise">
+      <text class="enterprise-icon">🏢</text>
+    </view>
+  </view>
+
+  <!-- 主图区域 -->
+  <view class="hero-section">
+    <!-- 背景装饰圆 -->
+    <view class="bg-circle bg-circle-1"></view>
+    <view class="bg-circle bg-circle-2"></view>
+    <view class="bg-circle bg-circle-3"></view>
+
+    <!-- 圆形主图容器 -->
+    <view class="hero-circle">
+      <view class="hero-circle-bg"></view>
+      <image 
+        class="hero-image" 
+        src="/images/mbti-types.png" 
+        mode="aspectFit"
+      ></image>
+
+      <!-- 浮动标签 -->
+      <view class="float-tag float-tag-1">
+        <text class="float-tag-text">性格匹配</text>
+      </view>
+      <view class="float-tag float-tag-2">
+        <text class="float-tag-text">特质评估</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 测试流程卡片 -->
+  <view class="flow-card">
+    <text class="flow-title">测试流程</text>
+    
+    <view class="flow-steps">
+      <!-- 连接线 -->
+      <view class="flow-line"></view>
+      
+      <!-- 步骤1 -->
+      <view class="flow-step">
+        <view class="step-circle active">
+          <text class="step-num">1</text>
+        </view>
+        <text class="step-label">STEP1</text>
+        <text class="step-title">选择测试</text>
+        <text class="step-desc">MBTI/DISC/PDP</text>
+      </view>
+      
+      <!-- 步骤2 -->
+      <view class="flow-step">
+        <view class="step-circle">
+          <text class="step-num">2</text>
+        </view>
+        <text class="step-label">STEP2</text>
+        <text class="step-title">答题测试</text>
+        <text class="step-desc">90道专业题目</text>
+      </view>
+      
+      <!-- 步骤3 -->
+      <view class="flow-step">
+        <view class="step-circle">
+          <text class="step-num">3</text>
+        </view>
+        <text class="step-label">STEP3</text>
+        <text class="step-title">获取报告</text>
+        <text class="step-desc">AI智能分析</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能按钮区 -->
+  <view class="action-section">
+    <!-- AI人脸性格分析 -->
+    <view class="btn btn-ai" bindtap="goToAITest">
+      <text class="btn-icon">👁️</text>
+      <text class="btn-text">AI人脸性格分析</text>
+    </view>
+
+    <!-- 开始MBTI测试 -->
+    <view class="btn btn-primary" bindtap="goToMBTI">
+      <text class="btn-icon">❤️</text>
+      <text class="btn-text">开始MBTI测试</text>
+    </view>
+
+    <!-- DISC和PDP测试 -->
+    <view class="btn-row">
+      <view class="btn btn-outline" bindtap="goToDISC">
+        <text class="btn-text-sm">DISC测试</text>
+      </view>
+      <view class="btn btn-outline" bindtap="goToPDP">
+        <text class="btn-text-sm">PDP测试</text>
+      </view>
+    </view>
+
+    <!-- 信任背书 -->
+    <view class="trust-text">
+      <text>已有 </text>
+      <text class="trust-num">128,000+</text>
+      <text> 人完成测试</text>
+    </view>
+  </view>
+
+  <!-- 历史结果快捷入口 -->
+  <view class="history-section" wx:if="{{hasResults}}">
+    <text class="history-title">我的测试结果</text>
+    <view class="history-cards">
+      <view class="history-card" wx:if="{{mbtiResult}}" bindtap="viewMBTIResult">
+        <text class="history-type">{{mbtiResult.mbtiType}}</text>
+        <text class="history-label">MBTI</text>
+      </view>
+      <view class="history-card" wx:if="{{discResult}}" bindtap="viewDISCResult">
+        <text class="history-type">{{discResult.dominantType}}型</text>
+        <text class="history-label">DISC</text>
+      </view>
+      <view class="history-card" wx:if="{{pdpResult}}" bindtap="viewPDPResult">
+        <text class="history-type">{{pdpResult.description.emoji}}</text>
+        <text class="history-label">PDP</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 底部导航 -->
+<view class="tab-bar">
+  <view class="tab-item active">
+    <text class="tab-icon">🏠</text>
+    <text class="tab-text">首页</text>
+  </view>
+  <view class="tab-item tab-center" bindtap="goToAITest">
+    <view class="tab-center-btn ai">
+      <text class="tab-center-icon">👁️</text>
+    </view>
+    <text class="tab-text">AI测试</text>
+  </view>
+  <view class="tab-item" bindtap="goToProfile">
+    <text class="tab-icon">👤</text>
+    <text class="tab-text">我的</text>
+  </view>
+</view>

@@ -1,0 +1,248 @@
+<!--pages/purchase/index.wxml - 购买会员页面-->
+<view class="container">
+  <!-- 用户权益状态 -->
+  <view class="status-card {{isVIP ? 'vip' : ''}}">
+    <view class="status-icon">{{isVIP ? '👑' : '🎁'}}</view>
+    <view class="status-info">
+      <text class="status-title">{{isVIP ? 'VIP会员' : '普通用户'}}</text>
+      <text class="status-desc" wx:if="{{isVIP}}">{{vipExpireText}}</text>
+      <text class="status-desc" wx:else>开通VIP，无限畅测所有测试</text>
+    </view>
+    <view class="test-count" wx:if="{{!isVIP}}">
+      <text class="count-num">{{testCount}}</text>
+      <text class="count-label">剩余次数</text>
+    </view>
+  </view>
+
+  <!-- VIP会员套餐 -->
+  <view class="section">
+    <text class="section-title">✨ VIP会员套餐</text>
+    <text class="section-subtitle">无限次测试 · 完整报告 · 专属特权</text>
+    
+    <view class="vip-cards">
+      <view 
+        class="vip-card {{selectedVIP === 'month' ? 'selected' : ''}}"
+        bindtap="selectVIP"
+        data-type="month"
+      >
+        <view class="vip-tag" wx:if="{{selectedVIP === 'month'}}">已选</view>
+        <text class="vip-name">月度会员</text>
+        <view class="vip-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">19.9</text>
+        </view>
+        <text class="vip-original">原价 ¥29.9</text>
+        <text class="vip-avg">¥0.66/天</text>
+      </view>
+      
+      <view 
+        class="vip-card hot {{selectedVIP === 'quarter' ? 'selected' : ''}}"
+        bindtap="selectVIP"
+        data-type="quarter"
+      >
+        <view class="vip-hot-tag">热卖</view>
+        <view class="vip-tag" wx:if="{{selectedVIP === 'quarter'}}">已选</view>
+        <text class="vip-name">季度会员</text>
+        <view class="vip-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">49.9</text>
+        </view>
+        <text class="vip-original">原价 ¥89.7</text>
+        <text class="vip-avg">¥0.55/天</text>
+      </view>
+      
+      <view 
+        class="vip-card {{selectedVIP === 'year' ? 'selected' : ''}}"
+        bindtap="selectVIP"
+        data-type="year"
+      >
+        <view class="vip-tag" wx:if="{{selectedVIP === 'year'}}">已选</view>
+        <text class="vip-name">年度会员</text>
+        <view class="vip-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">99</text>
+        </view>
+        <text class="vip-original">原价 ¥358.8</text>
+        <text class="vip-avg">¥0.27/天</text>
+      </view>
+      
+      <view 
+        class="vip-card {{selectedVIP === 'lifetime' ? 'selected' : ''}}"
+        bindtap="selectVIP"
+        data-type="lifetime"
+      >
+        <view class="vip-best-tag">超值</view>
+        <view class="vip-tag" wx:if="{{selectedVIP === 'lifetime'}}">已选</view>
+        <text class="vip-name">终身会员</text>
+        <view class="vip-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">199</text>
+        </view>
+        <text class="vip-original">原价 ¥999</text>
+        <text class="vip-avg">一次付费 永久使用</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- VIP特权说明 -->
+  <view class="section privileges">
+    <text class="section-title">🎖️ VIP专属特权</text>
+    <view class="privilege-list">
+      <view class="privilege-item">
+        <text class="privilege-icon">✅</text>
+        <text class="privilege-text">无限次MBTI、DISC、PDP测试</text>
+      </view>
+      <view class="privilege-item">
+        <text class="privilege-icon">✅</text>
+        <text class="privilege-text">AI人脸性格分析无限次</text>
+      </view>
+      <view class="privilege-item">
+        <text class="privilege-icon">✅</text>
+        <text class="privilege-text">完整详细测试报告</text>
+      </view>
+      <view class="privilege-item">
+        <text class="privilege-icon">✅</text>
+        <text class="privilege-text">历史记录永久保存</text>
+      </view>
+      <view class="privilege-item">
+        <text class="privilege-icon">✅</text>
+        <text class="privilege-text">专属客服支持</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 测试次数包 -->
+  <view class="section" wx:if="{{!isVIP}}">
+    <text class="section-title">🎯 测试次数包</text>
+    <text class="section-subtitle">按次购买，灵活使用</text>
+    
+    <view class="count-cards">
+      <view 
+        class="count-card {{selectedCount === 1 ? 'selected' : ''}}"
+        bindtap="selectCount"
+        data-count="1"
+      >
+        <text class="count-num-big">1</text>
+        <text class="count-unit">次</text>
+        <view class="count-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">3.9</text>
+        </view>
+      </view>
+      
+      <view 
+        class="count-card {{selectedCount === 10 ? 'selected' : ''}}"
+        bindtap="selectCount"
+        data-count="10"
+      >
+        <view class="count-save">省10元</view>
+        <text class="count-num-big">10</text>
+        <text class="count-unit">次</text>
+        <view class="count-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">29</text>
+        </view>
+      </view>
+      
+      <view 
+        class="count-card {{selectedCount === 50 ? 'selected' : ''}}"
+        bindtap="selectCount"
+        data-count="50"
+      >
+        <view class="count-save">省96元</view>
+        <text class="count-num-big">50</text>
+        <text class="count-unit">次</text>
+        <view class="count-price">
+          <text class="price-symbol">¥</text>
+          <text class="price-num">99</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 单次购买 -->
+  <view class="section" wx:if="{{!isVIP}}">
+    <text class="section-title">🔓 单次解锁</text>
+    <text class="section-subtitle">解锁单个测试，永久有效</text>
+    
+    <view class="single-list">
+      <view class="single-item" bindtap="buySingle" data-type="mbti">
+        <view class="single-icon">🧠</view>
+        <view class="single-info">
+          <text class="single-name">MBTI性格测试</text>
+          <text class="single-desc">90道专业题目，16种人格</text>
+        </view>
+        <view class="single-price">
+          <text class="price-num">¥9.9</text>
+          <text class="price-action">解锁</text>
+        </view>
+      </view>
+      
+      <view class="single-item" bindtap="buySingle" data-type="disc">
+        <view class="single-icon">📊</view>
+        <view class="single-info">
+          <text class="single-name">DISC行为测试</text>
+          <text class="single-desc">20道题目，4种行为风格</text>
+        </view>
+        <view class="single-price">
+          <text class="price-num">¥6.9</text>
+          <text class="price-action">解锁</text>
+        </view>
+      </view>
+      
+      <view class="single-item" bindtap="buySingle" data-type="pdp">
+        <view class="single-icon">🦁</view>
+        <view class="single-info">
+          <text class="single-name">PDP动物性格</text>
+          <text class="single-desc">20道题目，5种动物类型</text>
+        </view>
+        <view class="single-price">
+          <text class="price-num">¥6.9</text>
+          <text class="price-action">解锁</text>
+        </view>
+      </view>
+      
+      <view class="single-item" bindtap="buySingle" data-type="ai">
+        <view class="single-icon">👁️</view>
+        <view class="single-info">
+          <text class="single-name">AI人脸分析</text>
+          <text class="single-desc">AI智能分析面部特征</text>
+        </view>
+        <view class="single-price">
+          <text class="price-num">¥19.9</text>
+          <text class="price-action">解锁</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部安全提示 -->
+  <view class="safety-tips">
+    <view class="safety-item">
+      <text class="safety-icon">🔒</text>
+      <text class="safety-text">微信安全支付</text>
+    </view>
+    <view class="safety-item">
+      <text class="safety-icon">✅</text>
+      <text class="safety-text">即时到账开通</text>
+    </view>
+    <view class="safety-item">
+      <text class="safety-icon">📞</text>
+      <text class="safety-text">7×24客服</text>
+    </view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+</view>
+
+<!-- 底部购买按钮 -->
+<view class="bottom-bar">
+  <view class="price-info">
+    <text class="total-label">应付：</text>
+    <text class="total-price">¥{{totalPrice}}</text>
+  </view>
+  <view class="buy-btn {{purchasing ? 'disabled' : ''}}" bindtap="handlePurchase">
+    <text class="buy-btn-text">{{purchasing ? '支付中...' : '立即开通'}}</text>
+  </view>
+</view>

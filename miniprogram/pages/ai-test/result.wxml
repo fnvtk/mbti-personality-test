@@ -1,0 +1,85 @@
+<!--pages/ai-test/result.wxml - AI分析结果-->
+<view class="container">
+  <!-- 分析中状态 -->
+  <view class="analyzing" wx:if="{{isAnalyzing}}">
+    <view class="analyzing-animation">
+      <view class="analyzing-circle"></view>
+      <view class="analyzing-circle delay-1"></view>
+      <view class="analyzing-circle delay-2"></view>
+    </view>
+    <text class="analyzing-title">AI正在分析中...</text>
+    <text class="analyzing-progress">{{progress}}%</text>
+    <view class="analyzing-bar">
+      <view class="analyzing-bar-fill" style="width: {{progress}}%"></view>
+    </view>
+    <text class="analyzing-tip">{{analyzingTip}}</text>
+  </view>
+
+  <!-- 分析结果 -->
+  <view class="result" wx:else>
+    <!-- 综合类型卡片 -->
+    <view class="result-card main-card">
+      <view class="main-types">
+        <view class="type-badge mbti">
+          <text class="type-label">MBTI</text>
+          <text class="type-value">{{result.mbti}}</text>
+        </view>
+        <view class="type-badge pdp">
+          <text class="type-emoji">{{result.pdpEmoji}}</text>
+          <text class="type-value">{{result.pdp}}</text>
+        </view>
+        <view class="type-badge disc">
+          <text class="type-label">DISC</text>
+          <text class="type-value">{{result.disc}}型</text>
+        </view>
+      </view>
+      <text class="result-title">{{result.title}}</text>
+      <text class="result-summary">{{result.summary}}</text>
+    </view>
+
+    <!-- 性格特点 -->
+    <view class="result-card">
+      <text class="card-title">✨ 核心特质</text>
+      <view class="traits-list">
+        <view class="trait-item" wx:for="{{result.traits}}" wx:key="*this">
+          <text class="trait-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 面相分析 -->
+    <view class="result-card">
+      <text class="card-title">👁️ 面相分析</text>
+      <text class="card-content">{{result.faceAnalysis}}</text>
+    </view>
+
+    <!-- 职业建议 -->
+    <view class="result-card">
+      <text class="card-title">💼 职业建议</text>
+      <view class="career-list">
+        <view class="career-tag" wx:for="{{result.careers}}" wx:key="*this">
+          <text>{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 人际关系 -->
+    <view class="result-card">
+      <text class="card-title">💕 人际关系</text>
+      <text class="card-content">{{result.relationship}}</text>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-section">
+      <view class="btn btn-primary" bindtap="shareResult">
+        <text class="btn-text">分享我的分析报告</text>
+      </view>
+      <view class="btn btn-outline" bindtap="retake">
+        <text class="btn-text-outline">重新分析</text>
+      </view>
+      <view class="btn btn-outline" bindtap="goHome">
+        <text class="btn-text-outline">返回首页</text>
+      </view>
+    </view>
+  </view>
+</view>

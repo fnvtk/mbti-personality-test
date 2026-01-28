@@ -1,0 +1,54 @@
+<!--pages/test/mbti.wxml - MBTI测试页面-->
+<view class="container">
+  <!-- 顶部进度 -->
+  <view class="progress-header">
+    <view class="progress-info">
+      <text class="progress-text">第 {{currentIndex + 1}} / {{total}} 题</text>
+      <text class="time-text">剩余 {{formatTime}}</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-bar-fill gradient-personal" style="width: {{progress}}%"></view>
+    </view>
+  </view>
+
+  <!-- 题目卡片 -->
+  <view class="question-card glass-card">
+    <text class="question-text">{{currentQuestion.question}}</text>
+    
+    <view class="options">
+      <view 
+        class="option-item {{selectedAnswer === option.value ? 'selected' : ''}}"
+        wx:for="{{currentQuestion.options}}"
+        wx:for-item="option"
+        wx:key="value"
+        bindtap="selectAnswer"
+        data-value="{{option.value}}"
+      >
+        <view class="option-indicator {{selectedAnswer === option.value ? 'active' : ''}}">
+          <text wx:if="{{selectedAnswer === option.value}}">✓</text>
+        </view>
+        <text class="option-text">{{option.text}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部导航 -->
+  <view class="nav-buttons">
+    <button class="btn btn-outline" bindtap="prevQuestion" disabled="{{currentIndex === 0}}">
+      上一题
+    </button>
+    <button class="btn btn-outline" bindtap="nextQuestion" disabled="{{currentIndex === total - 1}}">
+      下一题
+    </button>
+  </view>
+
+  <!-- 提交按钮 -->
+  <button 
+    class="btn btn-primary submit-btn" 
+    wx:if="{{answeredCount === total}}"
+    bindtap="submitTest"
+    disabled="{{isSubmitting}}"
+  >
+    {{isSubmitting ? '计算中...' : '完成测试，查看结果'}}
+  </button>
+</view>

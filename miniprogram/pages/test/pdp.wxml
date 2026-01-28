@@ -1,0 +1,38 @@
+<!--pages/test/pdp.wxml - PDP测试页面-->
+<view class="container">
+  <view class="progress-header">
+    <view class="progress-info">
+      <text class="progress-text">第 {{currentIndex + 1}} / {{total}} 题</text>
+      <text class="time-text">剩余 {{formatTime}}</text>
+    </view>
+    <view class="progress-bar">
+      <view class="progress-bar-fill gradient-pdp" style="width: {{progress}}%"></view>
+    </view>
+  </view>
+
+  <view class="question-card glass-card">
+    <text class="question-text">{{currentQuestion.question}}</text>
+    <view class="options">
+      <view 
+        class="option-item {{selectedAnswer === option.value ? 'selected' : ''}}"
+        wx:for="{{currentQuestion.options}}"
+        wx:for-item="option"
+        wx:key="value"
+        bindtap="selectAnswer"
+        data-value="{{option.value}}"
+      >
+        <view class="option-emoji">{{getEmoji(option.value)}}</view>
+        <text class="option-text">{{option.text}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="nav-buttons">
+    <button class="btn btn-outline" bindtap="prevQuestion" disabled="{{currentIndex === 0}}">上一题</button>
+    <button class="btn btn-outline" bindtap="nextQuestion" disabled="{{currentIndex === total - 1}}">下一题</button>
+  </view>
+
+  <button class="btn btn-primary submit-btn" wx:if="{{answeredCount === total}}" bindtap="submitTest" disabled="{{isSubmitting}}">
+    {{isSubmitting ? '计算中...' : '完成测试'}}
+  </button>
+</view>

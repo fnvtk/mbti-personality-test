@@ -1,0 +1,408 @@
+/* pages/purchase/index.wxss - 购买页面样式 */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 100%);
+  padding: 24rpx;
+  padding-bottom: 200rpx;
+}
+
+/* 状态卡片 */
+.status-card {
+  display: flex;
+  align-items: center;
+  padding: 32rpx;
+  background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.status-card.vip {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+}
+
+.status-icon {
+  font-size: 56rpx;
+  margin-right: 24rpx;
+}
+
+.status-info {
+  flex: 1;
+}
+
+.status-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 4rpx;
+}
+
+.status-desc {
+  display: block;
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.test-count {
+  text-align: center;
+  padding: 16rpx 24rpx;
+  background: rgba(244, 63, 94, 0.1);
+  border-radius: 16rpx;
+}
+
+.count-num {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #F43F5E;
+}
+
+.count-label {
+  display: block;
+  font-size: 20rpx;
+  color: #F43F5E;
+}
+
+/* 区块 */
+.section {
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1F2937;
+  margin-bottom: 8rpx;
+}
+
+.section-subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #9CA3AF;
+  margin-bottom: 24rpx;
+}
+
+/* VIP卡片 */
+.vip-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16rpx;
+}
+
+.vip-card {
+  position: relative;
+  padding: 24rpx;
+  background: #FFFFFF;
+  border: 3rpx solid #E5E7EB;
+  border-radius: 20rpx;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.vip-card.selected {
+  border-color: #F43F5E;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 100%);
+  box-shadow: 0 8rpx 24rpx rgba(244, 63, 94, 0.15);
+}
+
+.vip-card.hot {
+  border-color: #FB923C;
+}
+
+.vip-hot-tag {
+  position: absolute;
+  top: -12rpx;
+  right: 16rpx;
+  padding: 4rpx 16rpx;
+  background: linear-gradient(135deg, #FB923C 0%, #F43F5E 100%);
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.vip-best-tag {
+  position: absolute;
+  top: -12rpx;
+  right: 16rpx;
+  padding: 4rpx 16rpx;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.vip-tag {
+  position: absolute;
+  top: 8rpx;
+  left: 8rpx;
+  padding: 4rpx 12rpx;
+  background: #F43F5E;
+  border-radius: 8rpx;
+  font-size: 18rpx;
+  color: #FFFFFF;
+}
+
+.vip-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12rpx;
+  margin-top: 8rpx;
+}
+
+.vip-price {
+  margin-bottom: 8rpx;
+}
+
+.price-symbol {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #F43F5E;
+}
+
+.price-num {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #F43F5E;
+}
+
+.vip-original {
+  display: block;
+  font-size: 22rpx;
+  color: #9CA3AF;
+  text-decoration: line-through;
+  margin-bottom: 4rpx;
+}
+
+.vip-avg {
+  display: block;
+  font-size: 22rpx;
+  color: #6B7280;
+}
+
+/* 特权列表 */
+.privileges {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+}
+
+.privilege-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.privilege-item {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.privilege-icon {
+  font-size: 28rpx;
+}
+
+.privilege-text {
+  font-size: 26rpx;
+  color: #374151;
+}
+
+/* 次数卡片 */
+.count-cards {
+  display: flex;
+  gap: 16rpx;
+}
+
+.count-card {
+  flex: 1;
+  position: relative;
+  padding: 24rpx 16rpx;
+  background: #FFFFFF;
+  border: 3rpx solid #E5E7EB;
+  border-radius: 20rpx;
+  text-align: center;
+}
+
+.count-card.selected {
+  border-color: #F43F5E;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 100%);
+}
+
+.count-save {
+  position: absolute;
+  top: -12rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4rpx 12rpx;
+  background: #10B981;
+  border-radius: 12rpx;
+  font-size: 18rpx;
+  color: #FFFFFF;
+  white-space: nowrap;
+}
+
+.count-num-big {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #1F2937;
+}
+
+.count-unit {
+  font-size: 24rpx;
+  color: #6B7280;
+  margin-left: 4rpx;
+}
+
+.count-price {
+  margin-top: 8rpx;
+}
+
+.count-price .price-symbol {
+  font-size: 24rpx;
+}
+
+.count-price .price-num {
+  font-size: 36rpx;
+}
+
+/* 单次购买列表 */
+.single-list {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  overflow: hidden;
+}
+
+.single-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #F3F4F6;
+}
+
+.single-item:last-child {
+  border-bottom: none;
+}
+
+.single-icon {
+  font-size: 48rpx;
+  margin-right: 20rpx;
+}
+
+.single-info {
+  flex: 1;
+}
+
+.single-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 4rpx;
+}
+
+.single-desc {
+  display: block;
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+.single-price {
+  text-align: center;
+}
+
+.single-price .price-num {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #F43F5E;
+}
+
+.price-action {
+  display: block;
+  font-size: 22rpx;
+  color: #F43F5E;
+  margin-top: 4rpx;
+}
+
+/* 安全提示 */
+.safety-tips {
+  display: flex;
+  justify-content: center;
+  gap: 32rpx;
+  padding: 32rpx 0;
+}
+
+.safety-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.safety-icon {
+  font-size: 24rpx;
+}
+
+.safety-text {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+/* 底部占位 */
+.bottom-placeholder {
+  height: 120rpx;
+}
+
+/* 底部购买栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  padding-bottom: calc(16rpx + constant(safe-area-inset-bottom));
+  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1rpx solid #F3F4F6;
+  z-index: 100;
+}
+
+.price-info {
+  flex: 1;
+}
+
+.total-label {
+  font-size: 26rpx;
+  color: #6B7280;
+}
+
+.total-price {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: #F43F5E;
+}
+
+.buy-btn {
+  padding: 24rpx 64rpx;
+  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
+  border-radius: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(244, 63, 94, 0.3);
+}
+
+.buy-btn.disabled {
+  opacity: 0.6;
+}
+
+.buy-btn-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #FFFFFF;
+}

@@ -1,0 +1,49 @@
+/* pages/test/pdp.wxss */
+.container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 200rpx;
+  background: linear-gradient(180deg, #FFFBEB 0%, #FFFFFF 100%);
+}
+
+.gradient-pdp {
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+}
+
+.progress-header { margin-bottom: 32rpx; }
+.progress-info { display: flex; justify-content: space-between; margin-bottom: 16rpx; }
+.progress-text { font-size: 28rpx; font-weight: 600; color: var(--text-primary); }
+.time-text { font-size: 26rpx; color: #F59E0B; font-weight: 500; }
+
+.question-card { padding: 40rpx 32rpx; }
+.question-text { display: block; font-size: 36rpx; font-weight: 600; color: var(--text-primary); line-height: 1.6; margin-bottom: 40rpx; }
+.options { display: flex; flex-direction: column; gap: 16rpx; }
+
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 20rpx;
+  background: #FFFFFF;
+  border: 2rpx solid var(--border-color);
+  border-radius: 16rpx;
+  transition: all 0.3s ease;
+}
+
+.option-item.selected { border-color: #F59E0B; background: #FFFBEB; }
+
+.option-emoji {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.option-text { font-size: 28rpx; color: var(--text-primary); line-height: 1.5; flex: 1; }
+
+.nav-buttons { display: flex; gap: 24rpx; margin-top: 40rpx; }
+.nav-buttons .btn { flex: 1; height: 80rpx; font-size: 28rpx; }
+.submit-btn { position: fixed; bottom: 60rpx; left: 24rpx; right: 24rpx; height: 96rpx; font-size: 32rpx; background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%); }

@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/test/mbti",
+    "pages/test/disc",
+    "pages/test/pdp",
+    "pages/result/mbti",
+    "pages/result/disc",
+    "pages/result/pdp",
+    "pages/ai-test/index",
+    "pages/ai-test/camera",
+    "pages/ai-test/result",
+    "pages/purchase/index",
+    "pages/profile/index",
+    "pages/history/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "神仙团队AI性格测试",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFF5F7"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.camera": {
+      "desc": "用于AI人脸性格分析拍照"
+    }
+  }
+}

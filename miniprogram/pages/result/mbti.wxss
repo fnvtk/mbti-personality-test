@@ -1,0 +1,46 @@
+/* pages/result/mbti.wxss */
+.container {
+  min-height: 100vh;
+  padding: 24rpx;
+  padding-bottom: 200rpx;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 100%);
+}
+
+.type-card {
+  padding: 60rpx 40rpx;
+  border-radius: 24rpx;
+  text-align: center;
+  color: #FFFFFF;
+  margin-bottom: 24rpx;
+}
+
+.type-label { display: block; font-size: 26rpx; opacity: 0.9; margin-bottom: 16rpx; }
+.type-value { display: block; font-size: 80rpx; font-weight: 700; margin-bottom: 8rpx; }
+.type-name { display: block; font-size: 36rpx; font-weight: 600; margin-bottom: 8rpx; }
+.type-category { display: block; font-size: 26rpx; opacity: 0.85; padding: 8rpx 24rpx; background: rgba(255,255,255,0.2); border-radius: 20rpx; display: inline-block; }
+
+.card-title { display: block; font-size: 32rpx; font-weight: 600; color: var(--text-primary); margin-bottom: 24rpx; }
+
+.confidence-card { text-align: center; }
+.confidence-bar { width: 100%; height: 16rpx; background: #E5E7EB; border-radius: 8rpx; overflow: hidden; margin-bottom: 16rpx; }
+.confidence-fill { height: 100%; background: linear-gradient(90deg, #FF6B8A, #FF8E53); border-radius: 8rpx; }
+.confidence-value { font-size: 36rpx; font-weight: 700; color: var(--primary-color); }
+
+.dimension-item { margin-bottom: 24rpx; }
+.dimension-labels { display: flex; justify-content: space-between; font-size: 24rpx; color: var(--text-secondary); margin-bottom: 8rpx; }
+.dimension-bar { width: 100%; height: 12rpx; background: #E5E7EB; border-radius: 6rpx; overflow: hidden; margin-bottom: 8rpx; }
+.dimension-fill { height: 100%; background: linear-gradient(90deg, #FF6B8A, #FF8E53); border-radius: 6rpx; }
+.dimension-value { font-size: 24rpx; color: var(--text-primary); font-weight: 500; }
+
+.description-text { font-size: 28rpx; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24rpx; }
+
+.traits-section { margin-bottom: 20rpx; }
+.traits-title { display: block; font-size: 28rpx; font-weight: 600; margin-bottom: 12rpx; }
+.traits-list { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.trait-item { padding: 8rpx 20rpx; background: var(--primary-light); color: var(--primary-color); border-radius: 20rpx; font-size: 24rpx; }
+
+.careers-list { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.career-tag { padding: 12rpx 24rpx; background: var(--bg-secondary); color: var(--text-primary); border-radius: 24rpx; font-size: 26rpx; }
+
+.action-buttons { display: flex; gap: 24rpx; margin-top: 40rpx; }
+.action-buttons .btn { flex: 1; height: 88rpx; font-size: 30rpx; }

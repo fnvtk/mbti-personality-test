@@ -1,0 +1,328 @@
+/* pages/profile/index.wxss - 个人中心样式 */
+.container {
+  min-height: 100vh;
+  background: #F3F4F6;
+  padding-bottom: 180rpx;
+}
+
+/* 用户卡片 */
+.user-card {
+  position: relative;
+  margin: 24rpx;
+  border-radius: 32rpx;
+  overflow: hidden;
+}
+
+.user-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
+}
+
+.user-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 40rpx 32rpx;
+}
+
+.avatar-section {
+  position: relative;
+  margin-right: 24rpx;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.vip-badge {
+  position: absolute;
+  bottom: -4rpx;
+  right: -4rpx;
+  padding: 4rpx 12rpx;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 12rpx;
+  font-size: 18rpx;
+  font-weight: 700;
+  color: #92400E;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.nickname {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 12rpx;
+}
+
+.user-tags {
+  display: flex;
+  gap: 12rpx;
+  flex-wrap: wrap;
+}
+
+.user-tag {
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  color: #FFFFFF;
+}
+
+.user-tag.vip {
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  color: #92400E;
+}
+
+.edit-btn {
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-icon {
+  font-size: 40rpx;
+}
+
+/* VIP Banner */
+.vip-banner {
+  display: flex;
+  align-items: center;
+  margin: 0 24rpx 24rpx;
+  padding: 24rpx;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 24rpx;
+}
+
+.vip-banner-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.vip-banner-icon {
+  font-size: 48rpx;
+  margin-right: 16rpx;
+}
+
+.vip-banner-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.vip-banner-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #92400E;
+}
+
+.vip-banner-desc {
+  font-size: 22rpx;
+  color: #B45309;
+}
+
+.vip-banner-btn {
+  padding: 12rpx 24rpx;
+  background: #92400E;
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* VIP Status */
+.vip-status {
+  display: flex;
+  align-items: center;
+  margin: 0 24rpx 24rpx;
+  padding: 24rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.vip-status-icon {
+  font-size: 48rpx;
+  margin-right: 16rpx;
+}
+
+.vip-status-info {
+  flex: 1;
+}
+
+.vip-status-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.vip-status-expire {
+  display: block;
+  font-size: 24rpx;
+  color: #6B7280;
+}
+
+.vip-status-action {
+  padding: 12rpx 24rpx;
+  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* 菜单 */
+.menu-section {
+  padding: 0 24rpx;
+}
+
+.menu-group {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 24rpx;
+  border-bottom: 1rpx solid #F3F4F6;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.menu-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: #1F2937;
+}
+
+.menu-arrow {
+  font-size: 32rpx;
+  color: #9CA3AF;
+}
+
+/* 测试结果 */
+.results-section {
+  padding: 0 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 16rpx;
+  padding-left: 8rpx;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24rpx 16rpx;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+}
+
+.result-type-big {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #F43F5E;
+  margin-bottom: 8rpx;
+}
+
+.result-emoji-big {
+  font-size: 40rpx;
+  margin-bottom: 8rpx;
+}
+
+.result-label {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+/* 底部 */
+.footer {
+  text-align: center;
+  padding: 48rpx 0;
+}
+
+.footer-text {
+  display: block;
+  font-size: 24rpx;
+  color: #9CA3AF;
+  margin-bottom: 8rpx;
+}
+
+.footer-version {
+  font-size: 22rpx;
+  color: #D1D5DB;
+}
+
+/* 底部导航 */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120rpx;
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1rpx solid #F3F4F6;
+  z-index: 999;
+}
+
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  height: 100%;
+}
+
+.tab-icon {
+  font-size: 44rpx;
+  margin-bottom: 4rpx;
+}
+
+.tab-text {
+  font-size: 22rpx;
+  color: #9CA3AF;
+}
+
+.tab-item.active .tab-text {
+  color: #F43F5E;
+}

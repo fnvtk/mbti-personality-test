@@ -1,0 +1,68 @@
+<!--pages/result/mbti.wxml - MBTI结果页面-->
+<view class="container">
+  <!-- 类型展示 -->
+  <view class="type-card gradient-personal">
+    <text class="type-label">您的MBTI类型是</text>
+    <text class="type-value">{{result.mbtiType}}</text>
+    <text class="type-name">{{result.description.name}}</text>
+    <text class="type-category">{{result.description.category}}</text>
+  </view>
+
+  <!-- 置信度 -->
+  <view class="glass-card confidence-card">
+    <text class="card-title">测试置信度</text>
+    <view class="confidence-bar">
+      <view class="confidence-fill" style="width: {{result.confidence}}%"></view>
+    </view>
+    <text class="confidence-value">{{result.confidence}}%</text>
+  </view>
+
+  <!-- 维度分析 -->
+  <view class="glass-card">
+    <text class="card-title">维度分析</text>
+    <view class="dimension-item" wx:for="{{dimensions}}" wx:key="key">
+      <view class="dimension-labels">
+        <text>{{item.left}}</text>
+        <text>{{item.right}}</text>
+      </view>
+      <view class="dimension-bar">
+        <view class="dimension-fill" style="width: {{item.percentage}}%"></view>
+      </view>
+      <text class="dimension-value">{{item.dominant}} {{item.percentage}}%</text>
+    </view>
+  </view>
+
+  <!-- 优势与挑战 -->
+  <view class="glass-card">
+    <text class="card-title">性格特点</text>
+    <text class="description-text">{{result.description.description}}</text>
+    
+    <view class="traits-section">
+      <text class="traits-title">✓ 优势</text>
+      <view class="traits-list">
+        <text class="trait-item" wx:for="{{result.description.strengths}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+    
+    <view class="traits-section">
+      <text class="traits-title">! 挑战</text>
+      <view class="traits-list">
+        <text class="trait-item" wx:for="{{result.description.weaknesses}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 职业建议 -->
+  <view class="glass-card">
+    <text class="card-title">推荐职业</text>
+    <view class="careers-list">
+      <text class="career-tag" wx:for="{{result.description.careers}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-outline" bindtap="retakeTest">重新测试</button>
+    <button class="btn btn-primary" open-type="share">分享结果</button>
+  </view>
+</view>

@@ -1,0 +1,55 @@
+<!--pages/result/pdp.wxml-->
+<view class="container">
+  <view class="type-card gradient-pdp">
+    <text class="type-emoji">{{result.description.emoji}}</text>
+    <text class="type-value">{{result.description.type}}</text>
+    <text class="type-name">{{result.description.title}}</text>
+  </view>
+
+  <view class="glass-card">
+    <text class="card-title">性格分布</text>
+    <view class="dimension-item" wx:for="{{typeList}}" wx:key="type">
+      <view class="dimension-labels">
+        <text>{{item.emoji}} {{item.label}}</text>
+        <text>{{result.percentages[item.type]}}%</text>
+      </view>
+      <view class="dimension-bar">
+        <view class="dimension-fill {{item.colorClass}}" style="width: {{result.percentages[item.type]}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="glass-card">
+    <text class="card-title">性格描述</text>
+    <text class="description-text">{{result.description.description}}</text>
+    <view class="traits-section">
+      <text class="traits-title">优势</text>
+      <view class="traits-list">
+        <text class="trait-item" wx:for="{{result.description.strengths}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+    <view class="traits-section">
+      <text class="traits-title">挑战</text>
+      <view class="traits-list">
+        <text class="trait-item warning" wx:for="{{result.description.weaknesses}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="glass-card">
+    <text class="card-title">团队角色</text>
+    <text class="role-text">{{result.description.teamRole}}</text>
+  </view>
+
+  <view class="glass-card">
+    <text class="card-title">推荐职业</text>
+    <view class="careers-list">
+      <text class="career-tag" wx:for="{{result.description.careers}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <view class="action-buttons">
+    <button class="btn btn-outline" bindtap="retakeTest">重新测试</button>
+    <button class="btn btn-primary" open-type="share">分享结果</button>
+  </view>
+</view>
