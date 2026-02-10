@@ -5,6 +5,7 @@ import { connectDB, isConnected } from './db'
 import User, { IUser } from './models/User'
 import TestResult, { ITestResult } from './models/TestResult'
 import Order from './models/Order'
+import Enterprise, { IEnterprise } from './models/Enterprise'
 import { Commission, Withdrawal, DistributionConfig } from './models/Distribution'
 
 // 内存存储（MongoDB不可用时的降级方案）
@@ -1225,12 +1226,150 @@ export const distributionService = {
   }
 }
 
+// ==================== 企业服务 ====================
+
+export const enterpriseService = {
+  /**
+   * 获取企业列表（分页+筛选）
+   */
+  async getEnterprises(page = 1, limit = 50, filters: any = {}) {
+    try {
+      if (!isConnected()) return { enterprises: [], total: 0, page, limit, pages: 0 }
+
+      const query: any = {}
+      if (filters.status && filters.status !== 'all') query.status = filters.status
+      if (filters.search) {
+        query.$or = [
+          { name: { $regex: filters.search, $options: 'i' } },
+          { contact: { $regex: filters.search, $options: 'i' } },
+          { phone: { $regex: filters.search, $options: 'i' } },
+        ]
+      }
+
+      const total = await Enterprise.countDocuments(query)
+      const enterprises = await Enterprise.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+
+      return { enterprises, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      console.error('获取企业列表失败:', error)
+      return { enterprises: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+
+  /**
+   * 根据ID获取企业
+   */
+  async getEnterpriseById(id: string) {
+    try {
+      if (!isConnected()) return null
+      return await Enterprise.findById(id)
+    } catch (error) {
+      return null
+    }
+  },
+
+  /**
+   * 创建企业
+   */
+  async createEnterprise(data: Partial<IEnterprise>) {
+    try {
+      if (!isConnected()) return null
+      return await Enterprise.create(data)
+    } catch (error) {
+      console.error('创建企业失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 更新企业
+   */
+  async updateEnterprise(id: string, data: Partial<IEnterprise>) {
+    try {
+      if (!isConnected()) return null
+      return await Enterprise.findByIdAndUpdate(id, { ...data, updatedAt: new Date() }, { new: true })
+    } catch (error) {
+      return null
+    }
+  },
+
+  /**
+   * 企业充值
+   */
+  async rechargeEnterprise(id: string, amount: number) {
+    try {
+      if (!isConnected()) return null
+      const enterprise = await Enterprise.findById(id)
+      if (!enterprise) return null
+
+      enterprise.balance += amount
+      enterprise.remainingTests += Math.floor(amount / 50)
+      enterprise.status = 'active'
+      await enterprise.save()
+      return enterprise
+    } catch (error) {
+      console.error('企业充值失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 获取企业统计
+   */
+  async getStats() {
+    try {
+      if (!isConnected()) return null
+      const total = await Enterprise.countDocuments()
+      const active = await Enterprise.countDocuments({ status: 'active' })
+      const trial = await Enterprise.countDocuments({ status: 'trial' })
+      const inactive = await Enterprise.countDocuments({ status: 'inactive' })
+      const balanceAgg = await Enterprise.aggregate([
+        { $group: { _id: null, totalBalance: { $sum: '$balance' }, totalTests: { $sum: '$usedTests' } } }
+      ])
+
+      return {
+        total,
+        active,
+        trial,
+        inactive,
+        totalBalance: balanceAgg[0]?.totalBalance || 0,
+        totalTests: balanceAgg[0]?.totalTests || 0,
+      }
+    } catch (error) {
+      return null
+    }
+  },
+
+  /**
+   * 获取企业关联的用户
+   */
+  async getEnterpriseUsers(enterpriseId: string, page = 1, limit = 20) {
+    try {
+      if (!isConnected()) return { users: [], total: 0, page, limit }
+
+      const total = await User.countDocuments({ enterpriseId })
+      const users = await User.find({ enterpriseId })
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+
+      return { users, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      return { users: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+}
+
 export default {
   initDatabase,
   userService,
   testResultService,
   orderService,
   photoService,
+  enterpriseService,
   distributionService,
   getDatabase,
 }
