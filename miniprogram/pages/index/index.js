@@ -3,115 +3,52 @@ const app = getApp()
 
 Page({
   data: {
-    isEnterprise: false,
-    hasResults: false,
-    mbtiResult: null,
-    discResult: null,
-    pdpResult: null
+    bossTeam: [
+      { type: "ENTJ", name: "镇山的虎", emoji: "🐯" },
+      { type: "ESTJ", name: "敏捷的豹", emoji: "🐆" },
+      { type: "INTJ", name: "远见的鹰", emoji: "🦅" },
+      { type: "ISTP", name: "善战的狼", emoji: "🐺" },
+      { type: "ENTP", name: "狡诈的狐", emoji: "🦊" }
+    ],
+    realTeam: [
+      { type: "ENFP", name: "装饭的桶", emoji: "🪣" },
+      { type: "ENFJ", name: "看门的狗", emoji: "🐕" },
+      { type: "ENTP", name: "搅屎的棍", emoji: "🥢" },
+      { type: "ISTJ", name: "生产的驴", emoji: "🫏" },
+      { type: "ESFP", name: "出头的鸟", emoji: "🐦" },
+      { type: "INTP", name: "划水的鱼", emoji: "🐟" },
+      { type: "ISFJ", name: "做猴的鸡", emoji: "🐔" },
+      { type: "ESTP", name: "害群的马", emoji: "🐴" },
+      { type: "INFP", name: "退堂的鼓", emoji: "🥁" }
+    ]
   },
 
-  onLoad() {
-    this.loadResults()
-  },
+  onLoad() {},
+  onShow() {},
 
-  onShow() {
-    this.loadResults()
-  },
-
-  // 加载历史测试结果
-  loadResults() {
-    const mbtiResult = wx.getStorageSync('mbtiResult')
-    const discResult = wx.getStorageSync('discResult')
-    const pdpResult = wx.getStorageSync('pdpResult')
-
-    this.setData({
-      mbtiResult: mbtiResult || null,
-      discResult: discResult || null,
-      pdpResult: pdpResult || null,
-      hasResults: !!(mbtiResult || discResult || pdpResult)
-    })
-  },
-
-  // 切换企业模式
-  toggleEnterprise() {
-    this.setData({
-      isEnterprise: !this.data.isEnterprise
-    })
-    wx.showToast({
-      title: this.data.isEnterprise ? '企业版' : '个人版',
-      icon: 'none'
-    })
-  },
-
-  // 跳转到AI人脸测试
   goToAITest() {
-    wx.navigateTo({
-      url: '/pages/ai-test/index'
-    })
+    wx.navigateTo({ url: '/pages/ai-test/index' })
   },
-
-  // 跳转到AI人脸拍照
-  goToAIFace() {
-    wx.navigateTo({
-      url: '/pages/ai-test/camera'
-    })
-  },
-
-  // 跳转到MBTI测试
   goToMBTI() {
-    wx.navigateTo({
-      url: '/pages/test/mbti'
-    })
+    wx.navigateTo({ url: '/pages/test/mbti' })
   },
-
-  // 跳转到DISC测试
   goToDISC() {
-    wx.navigateTo({
-      url: '/pages/test/disc'
-    })
+    wx.navigateTo({ url: '/pages/test/disc' })
   },
-
-  // 跳转到PDP测试
   goToPDP() {
-    wx.navigateTo({
-      url: '/pages/test/pdp'
-    })
+    wx.navigateTo({ url: '/pages/test/pdp' })
   },
-
-  // 查看MBTI结果
-  viewMBTIResult() {
-    wx.navigateTo({
-      url: '/pages/result/mbti'
-    })
-  },
-
-  // 查看DISC结果
-  viewDISCResult() {
-    wx.navigateTo({
-      url: '/pages/result/disc'
-    })
-  },
-
-  // 查看PDP结果
-  viewPDPResult() {
-    wx.navigateTo({
-      url: '/pages/result/pdp'
-    })
-  },
-
-  // 跳转到个人中心
   goToProfile() {
-    wx.navigateTo({
-      url: '/pages/profile/index'
-    })
+    wx.navigateTo({ url: '/pages/profile/index' })
+  },
+  goToPricing() {
+    wx.navigateTo({ url: '/pages/purchase/index' })
   },
 
-  // 分享
   onShareAppMessage() {
     return {
-      title: '神仙团队AI性格测试 - 来测测你的MBTI人格类型吧！',
-      path: '/pages/index/index',
-      imageUrl: '/images/share.png'
+      title: '神仙团队AI性格测试 - 发现你的MBTI类型',
+      path: '/pages/index/index'
     }
   }
 })

@@ -1,334 +1,175 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
-  BarChart3, Users, FileText, Camera, TrendingUp, 
-  DollarSign, Calendar, Activity, Settings
+  Users, FileText, DollarSign, TrendingUp, Activity,
+  Brain, BarChart3, ArrowUpRight, ArrowDownRight
 } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+
+interface StatsData {
+  users: { total: number; active: number; newToday: number; admins: number }
+  tests: { total: number; todayCount: number; typeDistribution: any[]; avgConfidence: number }
+  orders: { total: number; completed: number; totalRevenue: number; todayRevenue: number }
+}
 
 export default function AdminDashboardPage() {
-  const router = useRouter()
-  const [showPricingDialog, setShowPricingDialog] = useState(false)
-  const [pricingConfig, setPricingConfig] = useState({
-    faceTest: 1,
-    mbtiTest: 3,
-    pdpTest: 3,
-    discTest: 3,
-    fullReport: 10,
-    teamAnalysis: 50,
-  })
-
-  // 加载价格配置
-  useEffect(() => {
-    const savedPricing = localStorage.getItem("pricingConfig")
-    if (savedPricing) {
-      setPricingConfig(JSON.parse(savedPricing))
-    }
-  }, [])
-
-  // 保存价格配置
-  const handleSavePricing = () => {
-    localStorage.setItem("pricingConfig", JSON.stringify(pricingConfig))
-    setShowPricingDialog(false)
-  }
-
-  // 统计数据
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    testsCompleted: 0,
-    activeToday: 0,
-    revenue: 0,
-    faceTests: 0,
-    mbtiTests: 0,
-    discTests: 0,
-    pdpTests: 0,
-  })
+  const [stats, setStats] = useState<StatsData | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // 加载真实统计数据
   useEffect(() => {
-    async function fetchStats() {
-      try {
-        const res = await fetch('/api/admin/stats')
-        const data = await res.json()
-        if (data.code === 200) {
-          setStats({
-            totalUsers: data.data.overview.totalUsers || 0,
-            testsCompleted: data.data.overview.totalTests || 0,
-            activeToday: data.data.overview.todayTests || 0,
-            revenue: data.data.overview.totalRevenue || 0,
-            faceTests: 0,
-            mbtiTests: data.data.overview.totalTests || 0,
-            discTests: 0,
-            pdpTests: 0,
-          })
-        }
-      } catch (error) {
-        console.error('获取统计数据失败:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchStats()
   }, [])
 
-  // 最近活动
-  const recentActivities = [
-    { user: "系统", action: "后台服务已启动", time: "刚刚", type: "system" },
-  ]
+  async function fetchStats() {
+    try {
+      const res = await fetch('/api/admin/stats')
+      const data = await res.json()
+      if (data.code === 200) {
+        setStats(data.data)
+      }
+    } catch (error) {
+      console.error('获取数据失败:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-xl font-bold">首页概览</h1>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[1,2,3,4].map(i => (
+            <Card key={i}><CardContent className="p-4"><div className="h-16 bg-gray-100 animate-pulse rounded" /></CardContent></Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  const s = stats!
+
+  // MBTI类型分布前8
+  const topTypes = (s.tests.typeDistribution || []).slice(0, 8)
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">仪表板</h1>
-          <p className="text-gray-500 mt-1">欢迎回来，这是您的系统概览</p>
-        </div>
-        <Button onClick={() => setShowPricingDialog(true)} className="flex items-center gap-2">
-          <DollarSign className="h-4 w-4" />
-          价格设置
-        </Button>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">首页概览</h1>
+        <p className="text-sm text-gray-500">实时数据统计</p>
       </div>
 
-      {/* 统计卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">总用户数</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalUsers.toLocaleString()}</p>
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  +12% 较上周
-                </p>
+      {/* 核心指标卡片 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
               </div>
-              <div className="p-3 bg-blue-100 rounded-xl">
-                <Users className="h-6 w-6 text-blue-600" />
-              </div>
+              <span className="text-xs text-green-600 flex items-center">
+                <ArrowUpRight className="h-3 w-3" />+{s.users.newToday}
+              </span>
             </div>
+            <p className="text-2xl font-bold">{s.users.total}</p>
+            <p className="text-xs text-gray-500">总用户数</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">已完成测试</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.testsCompleted.toLocaleString()}</p>
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  +8% 较上周
-                </p>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                <Brain className="h-5 w-5 text-purple-600" />
               </div>
-              <div className="p-3 bg-green-100 rounded-xl">
-                <FileText className="h-6 w-6 text-green-600" />
-              </div>
+              <span className="text-xs text-gray-500">{s.tests.todayCount}今日</span>
             </div>
+            <p className="text-2xl font-bold">{s.tests.total}</p>
+            <p className="text-xs text-gray-500">测试完成数</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">今日活跃</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.activeToday}</p>
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <Activity className="h-3 w-3 mr-1" />
-                  在线用户
-                </p>
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-9 h-9 rounded-lg bg-green-50 flex items-center justify-center">
+                <DollarSign className="h-5 w-5 text-green-600" />
               </div>
-              <div className="p-3 bg-purple-100 rounded-xl">
-                <BarChart3 className="h-6 w-6 text-purple-600" />
-              </div>
+              <span className="text-xs text-green-600 flex items-center">
+                <ArrowUpRight className="h-3 w-3" />+¥{s.orders.todayRevenue}
+              </span>
             </div>
+            <p className="text-2xl font-bold">¥{s.orders.totalRevenue.toLocaleString()}</p>
+            <p className="text-xs text-gray-500">总收入</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-500">本月收入</p>
-                <p className="text-3xl font-bold text-gray-900">¥{stats.revenue.toLocaleString()}</p>
-                <p className="text-xs text-green-600 mt-1 flex items-center">
-                  <TrendingUp className="h-3 w-3 mr-1" />
-                  +15% 较上月
-                </p>
-              </div>
-              <div className="p-3 bg-amber-100 rounded-xl">
-                <DollarSign className="h-6 w-6 text-amber-600" />
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                <Activity className="h-5 w-5 text-amber-600" />
               </div>
             </div>
+            <p className="text-2xl font-bold">{Math.round(s.tests.avgConfidence)}%</p>
+            <p className="text-xs text-gray-500">平均置信度</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* 测试类型统计 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>测试类型分布</CardTitle>
-            <CardDescription>各类型测试完成数量统计</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {[
-                { name: "人脸测试", count: stats.faceTests, color: "bg-rose-500", icon: Camera },
-                { name: "MBTI测试", count: stats.mbtiTests, color: "bg-purple-500", icon: FileText },
-                { name: "DISC测试", count: stats.discTests, color: "bg-blue-500", icon: FileText },
-                { name: "PDP测试", count: stats.pdpTests, color: "bg-amber-500", icon: FileText },
-              ].map((item) => (
-                <div key={item.name} className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-lg ${item.color} flex items-center justify-center`}>
-                    <item.icon className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium">{item.name}</span>
-                      <span className="text-sm text-gray-500">{item.count}</span>
+      {/* MBTI类型分布 */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-purple-600" />
+            MBTI类型分布
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {topTypes.length > 0 ? (
+            <div className="space-y-2">
+              {topTypes.map((item: any) => {
+                const maxCount = topTypes[0]?.count || 1
+                const percentage = Math.round((item.count / s.tests.total) * 100)
+                return (
+                  <div key={item._id} className="flex items-center gap-3">
+                    <span className="text-xs font-mono font-bold w-10 text-gray-700">{item._id}</span>
+                    <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-purple-500 to-rose-500 rounded-full flex items-center justify-end pr-2 transition-all duration-500"
+                        style={{ width: `${Math.max(15, (item.count / maxCount) * 100)}%` }}
+                      >
+                        <span className="text-[10px] text-white font-medium">{item.count}</span>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${item.color}`}
-                        style={{ width: `${(item.count / stats.testsCompleted) * 100}%` }}
-                      />
-                    </div>
+                    <span className="text-xs text-gray-500 w-10 text-right">{percentage}%</span>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <p className="text-sm text-gray-400 text-center py-6">暂无测试数据</p>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* 最近活动 */}
-        <Card>
-          <CardHeader>
-            <CardTitle>最近活动</CardTitle>
-            <CardDescription>用户最近的测试和注册活动</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-medium ${
-                      activity.type === "mbti" ? "bg-purple-500" :
-                      activity.type === "face" ? "bg-rose-500" :
-                      activity.type === "disc" ? "bg-blue-500" :
-                      activity.type === "pdp" ? "bg-amber-500" :
-                      activity.type === "purchase" ? "bg-green-500" : "bg-gray-500"
-                    }`}>
-                      {activity.user.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-sm">{activity.user}</p>
-                      <p className="text-xs text-gray-500">{activity.action}</p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400">{activity.time}</p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* 快捷操作 */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { label: "活跃用户", value: s.users.active, color: "blue" },
+          { label: "已完成订单", value: s.orders.completed, color: "green" },
+          { label: "管理员数", value: s.users.admins, color: "purple" },
+          { label: "今日收入", value: `¥${s.orders.todayRevenue}`, color: "amber" },
+        ].map((item, i) => (
+          <Card key={i} className="border-0 shadow-sm">
+            <CardContent className="p-3 text-center">
+              <p className="text-lg font-bold">{item.value}</p>
+              <p className="text-xs text-gray-500">{item.label}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
-
-      {/* 价格设置对话框 */}
-      <Dialog open={showPricingDialog} onOpenChange={setShowPricingDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>测试收费配置</DialogTitle>
-            <DialogDescription>设置各类测试的收费标准（单位：元）</DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="face-test-price">人脸测试</Label>
-                <Input
-                  id="face-test-price"
-                  type="number"
-                  value={pricingConfig.faceTest}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, faceTest: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="mbti-test-price">MBTI测试</Label>
-                <Input
-                  id="mbti-test-price"
-                  type="number"
-                  value={pricingConfig.mbtiTest}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, mbtiTest: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pdp-test-price">PDP测试</Label>
-                <Input
-                  id="pdp-test-price"
-                  type="number"
-                  value={pricingConfig.pdpTest}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, pdpTest: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="disc-test-price">DISC测试</Label>
-                <Input
-                  id="disc-test-price"
-                  type="number"
-                  value={pricingConfig.discTest}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, discTest: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="full-report-price">完整报告</Label>
-                <Input
-                  id="full-report-price"
-                  type="number"
-                  value={pricingConfig.fullReport}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, fullReport: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="team-analysis-price">团队分析</Label>
-                <Input
-                  id="team-analysis-price"
-                  type="number"
-                  value={pricingConfig.teamAnalysis}
-                  onChange={(e) => setPricingConfig({ ...pricingConfig, teamAnalysis: Number(e.target.value) })}
-                  min="0"
-                />
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowPricingDialog(false)}>
-              取消
-            </Button>
-            <Button onClick={handleSavePricing}>保存配置</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
