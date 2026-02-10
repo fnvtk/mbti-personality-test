@@ -45,26 +45,49 @@ export default function AdminDashboardPage() {
     setShowPricingDialog(false)
   }
 
-  // 统计数据（模拟）
-  const stats = {
-    totalUsers: 1286,
-    testsCompleted: 3420,
-    activeToday: 142,
-    revenue: 12580,
-    faceTests: 856,
-    mbtiTests: 1230,
-    discTests: 678,
-    pdpTests: 656,
-  }
+  // 统计数据
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    testsCompleted: 0,
+    activeToday: 0,
+    revenue: 0,
+    faceTests: 0,
+    mbtiTests: 0,
+    discTests: 0,
+    pdpTests: 0,
+  })
+  const [loading, setLoading] = useState(true)
+
+  // 加载真实统计数据
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/admin/stats')
+        const data = await res.json()
+        if (data.code === 200) {
+          setStats({
+            totalUsers: data.data.overview.totalUsers || 0,
+            testsCompleted: data.data.overview.totalTests || 0,
+            activeToday: data.data.overview.todayTests || 0,
+            revenue: data.data.overview.totalRevenue || 0,
+            faceTests: 0,
+            mbtiTests: data.data.overview.totalTests || 0,
+            discTests: 0,
+            pdpTests: 0,
+          })
+        }
+      } catch (error) {
+        console.error('获取统计数据失败:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchStats()
+  }, [])
 
   // 最近活动
   const recentActivities = [
-    { user: "张三", action: "完成了MBTI测试", time: "10分钟前", type: "mbti" },
-    { user: "李四", action: "注册了新账号", time: "30分钟前", type: "register" },
-    { user: "王五", action: "完成了人脸测试", time: "1小时前", type: "face" },
-    { user: "赵六", action: "完成了DISC测试", time: "2小时前", type: "disc" },
-    { user: "钱七", action: "购买了完整报告", time: "3小时前", type: "purchase" },
-    { user: "孙八", action: "完成了PDP测试", time: "4小时前", type: "pdp" },
+    { user: "系统", action: "后台服务已启动", time: "刚刚", type: "system" },
   ]
 
   return (

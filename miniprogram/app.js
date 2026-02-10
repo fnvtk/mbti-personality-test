@@ -4,8 +4,8 @@ App({
     userInfo: null,
     openId: null,
     token: null,
-    // API基础地址（需要替换为实际后端地址）
-    apiBase: 'https://your-api-domain.com',
+    // API基础地址（开发时用本地，生产环境替换为实际域名）
+    apiBase: 'http://localhost:3000',
     // VIP信息
     vipInfo: null,
     // 测试次数
@@ -67,20 +67,29 @@ App({
         if (res.code) {
           // 发送code到后端换取openId
           wx.request({
-            url: `${this.globalData.apiBase}/api/wechat/login`,
+            url: `${this.globalData.apiBase}/api/auth/wechat`,
             method: 'POST',
             data: { code: res.code },
             success: (response) => {
               if (response.statusCode === 200 && response.data.code === 200) {
-                const { openId, token } = response.data.data
+                const { openId, token, user } = response.data.data
                 this.globalData.openId = openId
                 this.globalData.token = token
+                if (user) {
+                  this.globalData.userInfo = user
+                  wx.setStorageSync('userInfo', user)
+                }
                 wx.setStorageSync('openId', openId)
                 wx.setStorageSync('token', token)
               }
             },
             fail: (err) => {
               console.error('登录失败:', err)
+              // 降级：使用本地存储的openId
+              const storedOpenId = wx.getStorageSync('openId')
+              if (storedOpenId) {
+                this.globalData.openId = storedOpenId
+              }
             }
           })
         }
@@ -117,14 +126,18 @@ App({
     // 同步到服务器
     if (this.globalData.token) {
       wx.request({
-        url: `${this.globalData.apiBase}/api/test/save`,
+        url: `${this.globalData.apiBase}/api/test/submit`,
         method: 'POST',
         header: {
-          'Authorization': `Bearer ${this.globalData.token}`
+          'Authorization': `Bearer ${this.globalData.token}`,
+          'Content-Type': 'application/json'
         },
         data: {
-          type,
-          result,
+          testType: type,
+          answers: result.answers || [],
+          result: result,
+          userId: this.globalData.openId,
+          testDuration: result.testDuration || 0,
           timestamp: new Date().toISOString()
         }
       })

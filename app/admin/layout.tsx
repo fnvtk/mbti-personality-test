@@ -49,6 +49,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navItems = [
     { href: "/admin/dashboard", icon: LayoutDashboard, label: "仪表板" },
     { href: "/admin/users", icon: Users, label: "用户管理" },
+    { href: "/admin/orders", icon: FileText, label: "订单管理" },
     { href: "/admin/pricing", icon: DollarSign, label: "价格设置" },
     { href: "/admin", icon: Settings, label: "系统设置" },
   ]
