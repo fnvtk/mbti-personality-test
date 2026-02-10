@@ -1,125 +1,108 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Copy, Check, MessageCircle, Share2, Users, QrCode } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Share2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import BottomNav from "@/components/ui/bottom-nav"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
+interface RewardRecipient {
+  id: number
+  name: string
+  avatar: string
+  amount: number
+  time: string
+}
 
 export default function SharePage() {
   const router = useRouter()
-  const [copied, setCopied] = useState(false)
-  const shareLink = "https://hairstyle.app/s/HF7825"
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareLink)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const shareChannels = [
-    { id: "wechat", name: "微信", icon: MessageCircle, color: "bg-green-500" },
-    { id: "moments", name: "朋友圈", icon: Users, color: "bg-green-600" },
-    { id: "qrcode", name: "二维码", icon: QrCode, color: "bg-gray-700" },
-    { id: "more", name: "更多", icon: Share2, color: "bg-blue-500" },
-  ]
-
-  const copyTexts = [
-    { text: "新年新发型！AI帮你提前预览，不踩雷～", tag: "春节特供" },
-    { text: "想换发型又怕翻车？先用AI看看效果吧！", tag: "热门" },
-    { text: "发现一个超好用的换发型神器，推荐给你！", tag: "推荐" },
-    { text: "不用去理发店也能预览新发型，太方便了！", tag: "实用" },
-  ]
+  const [recipients] = useState<RewardRecipient[]>([
+    {
+      id: 1,
+      name: "小红",
+      avatar: "/placeholder.svg",
+      amount: 38,
+      time: "刚刚",
+    },
+    {
+      id: 2,
+      name: "小明",
+      avatar: "/placeholder.svg",
+      amount: 42,
+      time: "2分钟前",
+    },
+    {
+      id: 3,
+      name: "小张",
+      avatar: "/placeholder.svg",
+      amount: 15,
+      time: "5分钟前",
+    },
+  ])
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto flex flex-col gradient-bg">
-      {/* 背景装饰 */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-[60px]" />
-        <div className="absolute bottom-40 left-0 w-60 h-60 bg-red-500/10 rounded-full blur-[80px]" />
+    <div className="w-full max-w-md mx-auto h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="px-5 py-3 flex items-center justify-between bg-white">
+        <h1 className="text-[17px]">分享得红包</h1>
+        <Button variant="ghost" size="icon">
+          <Share2 className="h-5 w-5" />
+        </Button>
       </div>
 
-      {/* 头部 */}
-      <header className="relative z-10 glass-nav sticky top-0">
-        <div className="flex items-center px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="flex-1 text-center font-semibold text-white">分享赚钱</h1>
-          <div className="w-9" />
-        </div>
-      </header>
-
-      {/* 主内容 */}
-      <main className="flex-1 relative z-10 px-5 py-6 pb-24">
-        {/* 分享卡片预览 */}
-        <div className="glass-card rounded-3xl p-6 mb-5 text-center border border-white/10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-500/30">
-            <span className="text-4xl">✨</span>
+      {/* Share Card */}
+      <Card className="mx-4 mt-4 p-6">
+        <div className="text-center">
+          <div className="relative w-24 h-24 mx-auto mb-4">
+            <Image src="/placeholder.svg" alt="Share reward" fill className="object-contain" />
           </div>
-          <h2 className="text-xl font-bold text-white mb-2">发型魔镜</h2>
-          <p className="text-white/60 mb-4">新年焕新颜，AI帮你选发型</p>
-          <div className="glass rounded-xl p-3 text-sm text-white/70 border border-white/10">
-            分享好友使用，你可获得<span className="text-orange-400 font-semibold"> ¥1 </span>佣金
-          </div>
+          <h3 className="text-lg font-medium mb-2">邀请好友得红包</h3>
+          <p className="text-base text-pink-500 font-medium mb-4">可得1-50元红包</p>
+          <Button className="w-full bg-pink-500 hover:bg-pink-600" onClick={() => router.push("/share/moments")}>
+            立即分享
+          </Button>
         </div>
+      </Card>
 
-        {/* 分享渠道 */}
-        <div className="glass-card rounded-2xl p-5 mb-5 border border-white/10">
-          <h3 className="font-medium text-white mb-4">分享到</h3>
-          <div className="grid grid-cols-4 gap-4">
-            {shareChannels.map((channel) => (
-              <button key={channel.id} className="flex flex-col items-center gap-2 group">
-                <div
-                  className={`w-14 h-14 rounded-full ${channel.color} flex items-center justify-center group-active:scale-95 transition-transform`}
-                >
-                  <channel.icon className="w-6 h-6 text-white" />
+      {/* Recent Recipients */}
+      <div className="px-4 mt-4">
+        <h4 className="text-sm font-medium mb-2">最近领取</h4>
+        <Card className="divide-y">
+          {recipients.map((recipient) => (
+            <div key={recipient.id} className="flex items-center gap-3 p-3">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={recipient.avatar} />
+                <AvatarFallback>{recipient.name[0]}</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{recipient.name}</span>
+                  <span className="text-pink-500">获得{recipient.amount}元</span>
                 </div>
-                <span className="text-xs text-white/60">{channel.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 复制链接 */}
-        <div className="glass-card rounded-2xl p-5 mb-5 border border-white/10">
-          <h3 className="font-medium text-white mb-4">复制链接</h3>
-          <div className="flex items-center gap-3">
-            <div className="flex-1 bg-white/5 rounded-xl px-4 py-3 text-sm text-white/60 truncate border border-white/10">
-              {shareLink}
-            </div>
-            <Button
-              onClick={handleCopy}
-              className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl px-5 h-11 shadow-lg shadow-orange-500/20"
-            >
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            </Button>
-          </div>
-        </div>
-
-        {/* 推荐话术 */}
-        <div className="glass-card rounded-2xl p-5 border border-white/10">
-          <h3 className="font-medium text-white mb-4">推荐话术</h3>
-          <div className="space-y-3">
-            {copyTexts.map((item, index) => (
-              <div
-                key={index}
-                onClick={() => {
-                  navigator.clipboard.writeText(item.text)
-                }}
-                className="p-4 bg-white/5 rounded-xl border border-white/10 cursor-pointer hover:bg-white/10 transition-colors group"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm text-white/80 flex-1">{item.text}</p>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 whitespace-nowrap">
-                    {item.tag}
-                  </span>
-                </div>
-                <p className="text-xs text-white/40 mt-2 group-hover:text-orange-400 transition-colors">点击复制</p>
+                <div className="text-xs text-gray-500">{recipient.time}</div>
               </div>
-            ))}
+            </div>
+          ))}
+        </Card>
+      </div>
+
+      {/* Share Tips */}
+      <div className="p-4 mt-4">
+        <h4 className="text-sm font-medium mb-2">分享说明</h4>
+        <Card className="p-4">
+          <div className="space-y-2 text-sm text-gray-600">
+            <p>1. 邀请好友完成面诊即可获得红包奖励</p>
+            <p>2. 每邀请一位好友完成面诊可得1-50元红包</p>
+            <p>3. 活动期间邀请人数不限</p>
           </div>
-        </div>
-      </main>
+        </Card>
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav currentPath="/share" />
     </div>
   )
 }

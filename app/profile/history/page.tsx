@@ -1,190 +1,184 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { ArrowLeft, FileText, ChevronRight, Calendar, Award } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Card } from "@/components/ui/card"
+import { ArrowLeft, History, FileText, Camera, CreditCard } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { getDatabase } from "@/lib/database"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import BottomNav from "@/components/bottom-nav"
 
-export default function TestHistoryPage() {
+export default function HistoryPage() {
   const router = useRouter()
+  const [testResults, setTestResults] = useState<any[]>([])
+  const [activeTab, setActiveTab] = useState<string>("all")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const testHistory = [
-    {
-      id: 1,
-      type: "MBTI测试",
-      result: "INTJ",
-      resultName: "战略家",
-      date: "2026-01-28",
-      time: "10:30",
-      confidence: 87,
-      color: "purple",
-    },
-    {
-      id: 2,
-      type: "AI人脸测试",
-      result: "ENTJ",
-      resultName: "指挥官",
-      date: "2026-01-27",
-      time: "15:20",
-      confidence: 82,
-      color: "rose",
-    },
-    {
-      id: 3,
-      type: "DISC测试",
-      result: "D型",
-      resultName: "支配型",
-      date: "2026-01-25",
-      time: "09:15",
-      confidence: 90,
-      color: "blue",
-    },
-    {
-      id: 4,
-      type: "PDP测试",
-      result: "老虎",
-      resultName: "领导型",
-      date: "2026-01-20",
-      time: "14:00",
-      confidence: 85,
-      color: "amber",
-    },
-  ]
+  useEffect(() => {
+    // 获取当前用户ID
+    const userId = sessionStorage.getItem("currentUserId")
+    if (userId) {
+      setIsLoggedIn(true)
+      // 获取用户测试记录
+      const db = getDatabase()
+      const user = db.getUserById(userId)
+      if (user) {
+        setTestResults(user.testResults || [])
+      }
+    } else {
+      router.push("/login")
+    }
+  }, [router])
+
+  // 格式化日期
+  const formatDate = (timestamp: number) => {
+    return new Date(timestamp).toLocaleDateString()
+  }
+
+  // 获取测试类型名称
+  const getTestTypeName = (type: string) => {
+    switch (type) {
+      case "mbti":
+        return "MBTI性格测试"
+      case "pdp":
+        return "PDP行为偏好测试"
+      case "disc":
+        return "DISC性格测试"
+      case "face":
+        return "面相分析"
+      default:
+        return "未知测试"
+    }
+  }
+
+  // 获取测试结果文本
+  const getResultText = (result: any, type: string) => {
+    switch (type) {
+      case "mbti":
+        return result?.type || "未知类型"
+      case "pdp":
+        return `${result?.primary || "未知"} + ${result?.secondary || "未知"}`
+      case "disc":
+        return `${result?.primary || "未知"} + ${result?.secondary || "未知"}`
+      case "face":
+        return result?.data?.mbti?.type || "分析完成"
+      default:
+        return "未知结果"
+    }
+  }
+
+  // 获取图标
+  const getIcon = (type: string) => {
+    switch (type) {
+      case "mbti":
+        return <FileText className="h-5 w-5 text-purple-500" />
+      case "pdp":
+        return <FileText className="h-5 w-5 text-blue-500" />
+      case "disc":
+        return <FileText className="h-5 w-5 text-green-500" />
+      case "face":
+        return <Camera className="h-5 w-5 text-pink-500" />
+      default:
+        return <History className="h-5 w-5 text-gray-500" />
+    }
+  }
+
+  // 获取价格
+  const getPrice = (test: any) => {
+    if (test.paid) {
+      return test.price || "¥19.9"
+    }
+    return "免费"
+  }
+
+  // 根据类型筛选测试结果
+  const filteredResults = activeTab === "all" ? testResults : testResults.filter((test) => test.testType === activeTab)
 
   return (
-    <div className="w-full max-w-md mx-auto min-h-screen flex flex-col bg-gradient-to-b from-rose-50 to-white">
-      {/* 头部 */}
-      <header className="glass-nav sticky top-0 z-40 px-4 py-3 safe-area-top">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="flex-1 text-center text-lg font-semibold mr-10">测试历史</h1>
-        </div>
-      </header>
+    <div className="w-full max-w-md mx-auto h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="px-5 py-3 flex items-center bg-white">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="flex-1 text-center text-[17px] mr-10">我的测试记录</h1>
+      </div>
 
-      <main className="flex-1 p-4 pb-8">
-        {/* 统计概览 */}
-        <Card className="glass-card mb-6">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div className="text-2xl font-bold text-rose-500">{testHistory.length}</div>
-                <div className="text-xs text-gray-500">完成测试</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-purple-500">INTJ</div>
-                <div className="text-xs text-gray-500">最新MBTI</div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-amber-500">87%</div>
-                <div className="text-xs text-gray-500">平均置信度</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* 测试类型标签 */}
+      <div className="p-4 bg-white border-b">
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-5 w-full">
+            <TabsTrigger value="all">全部</TabsTrigger>
+            <TabsTrigger value="mbti">MBTI</TabsTrigger>
+            <TabsTrigger value="pdp">PDP</TabsTrigger>
+            <TabsTrigger value="disc">DISC</TabsTrigger>
+            <TabsTrigger value="face">面相</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {/* 测试记录列表 */}
-        <div className="space-y-3">
-          {testHistory.map((test) => (
-            <Card 
-              key={test.id} 
-              className="glass-card overflow-hidden cursor-pointer card-hover"
-              onClick={() => router.push(`/test-result/${test.id}`)}
-            >
-              <div className={cn(
-                "h-1",
-                test.color === "purple" && "bg-purple-500",
-                test.color === "rose" && "bg-rose-500",
-                test.color === "blue" && "bg-blue-500",
-                test.color === "amber" && "bg-amber-500"
-              )} />
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center",
-                      test.color === "purple" && "bg-purple-100",
-                      test.color === "rose" && "bg-rose-100",
-                      test.color === "blue" && "bg-blue-100",
-                      test.color === "amber" && "bg-amber-100"
-                    )}>
-                      <FileText className={cn(
-                        "h-6 w-6",
-                        test.color === "purple" && "text-purple-600",
-                        test.color === "rose" && "text-rose-600",
-                        test.color === "blue" && "text-blue-600",
-                        test.color === "amber" && "text-amber-600"
-                      )} />
-                    </div>
-                    <div>
-                      <p className="font-semibold">{test.type}</p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <Calendar className="h-3 w-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{test.date} {test.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className={cn(
-                        "text-xl font-bold",
-                        test.color === "purple" && "text-purple-600",
-                        test.color === "rose" && "text-rose-600",
-                        test.color === "blue" && "text-blue-600",
-                        test.color === "amber" && "text-amber-600"
-                      )}>
-                        {test.result}
-                      </p>
-                      <p className="text-xs text-gray-500">{test.resultName}</p>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-300" />
-                  </div>
-                </div>
-                
-                {/* 置信度 */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-500 flex items-center gap-1">
-                      <Award className="h-3 w-3" />
-                      置信度
-                    </span>
-                    <span className="font-medium">{test.confidence}%</span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-1.5">
-                    <div
-                      className={cn(
-                        "h-1.5 rounded-full transition-all duration-500",
-                        test.color === "purple" && "bg-purple-500",
-                        test.color === "rose" && "bg-rose-500",
-                        test.color === "blue" && "bg-blue-500",
-                        test.color === "amber" && "bg-amber-500"
-                      )}
-                      style={{ width: `${test.confidence}%` }}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* 空状态提示 */}
-        {testHistory.length === 0 && (
-          <div className="text-center py-12">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">暂无测试记录</p>
-            <Button 
-              className="mt-4 gradient-personal text-white"
-              onClick={() => router.push("/test/mbti")}
-            >
-              开始第一次测试
+      <div className="p-4 flex-1 overflow-auto">
+        {!isLoggedIn ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="text-gray-500 mb-4">请先登录</p>
+            <Button className="bg-purple-600 hover:bg-purple-700" onClick={() => router.push("/login")}>
+              去登录
             </Button>
           </div>
+        ) : filteredResults.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <History className="h-16 w-16 text-gray-300 mb-4" />
+            <p className="text-gray-500">暂无{activeTab === "all" ? "" : getTestTypeName(activeTab)}历史记录</p>
+            <Button className="mt-4 bg-purple-600 hover:bg-purple-700" onClick={() => router.push("/ai-test")}>
+              开始测试
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredResults.map((test, index) => (
+              <Card
+                key={index}
+                className="p-4 hover:border-purple-200 cursor-pointer"
+                onClick={() => router.push(`/test-result/${test.id}`)}
+              >
+                <div className="flex items-center">
+                  <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center mr-3">
+                    {getIcon(test.testType)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between items-center">
+                      <h3 className="font-medium">{getTestTypeName(test.testType)}</h3>
+                      <div className="flex items-center">
+                        {test.paid ? (
+                          <div className="flex items-center mr-2">
+                            <CreditCard className="h-3 w-3 text-purple-500 mr-1" />
+                            <span className="text-xs text-purple-600 font-medium">{getPrice(test)}</span>
+                          </div>
+                        ) : null}
+                        <Badge
+                          className={`
+                          ${test.testType === "mbti" ? "bg-purple-100 text-purple-800" : ""}
+                          ${test.testType === "pdp" ? "bg-blue-100 text-blue-800" : ""}
+                          ${test.testType === "disc" ? "bg-green-100 text-green-800" : ""}
+                          ${test.testType === "face" ? "bg-pink-100 text-pink-800" : ""}
+                        `}
+                        >
+                          {getResultText(test.result, test.testType)}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">测试时间: {formatDate(test.timestamp)}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
         )}
-      </main>
+      </div>
+
+      <BottomNav currentPath="/profile" />
     </div>
   )
 }

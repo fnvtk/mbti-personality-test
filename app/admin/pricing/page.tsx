@@ -1,223 +1,313 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Save, Check, DollarSign, Percent, Gift } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { CheckCircle } from "lucide-react"
 
-interface PricingConfig {
-  faceTest: number
-  mbtiTest: number
-  pdpTest: number
-  discTest: number
-  fullReport: number
-  teamAnalysis: number
-  enablePromo: boolean
-  promoDiscount: number
-  freeTrialEnabled: boolean
-  freeTrialCount: number
-}
+export default function PricingPage() {
+  const [personalPricing, setPersonalPricing] = useState({
+    faceTest: 1,
+    mbtiTest: 3,
+    pdpTest: 3,
+    discTest: 3,
+    fullReport: 10,
+  })
 
-export default function AdminPricingPage() {
-  const [isSaved, setIsSaved] = useState(false)
-  const [pricing, setPricing] = useState<PricingConfig>({
+  const [enterprisePricing, setEnterprisePricing] = useState({
     faceTest: 1,
     mbtiTest: 3,
     pdpTest: 3,
     discTest: 3,
     fullReport: 10,
     teamAnalysis: 50,
-    enablePromo: false,
-    promoDiscount: 20,
-    freeTrialEnabled: true,
-    freeTrialCount: 1,
+    minRecharge: 500,
+    testsPerRecharge: 10,
   })
 
-  // 加载已保存的配置
+  const [deepServicePricing, setDeepServicePricing] = useState({
+    personalService: 198,
+    teamService: 1980,
+  })
+
+  const [saveSuccess, setSaveSuccess] = useState(false)
+  const [activeTab, setActiveTab] = useState("personal")
+
+  // 加载保存的价格设置
   useEffect(() => {
-    const savedPricing = localStorage.getItem("pricingConfig")
-    if (savedPricing) {
-      setPricing({ ...pricing, ...JSON.parse(savedPricing) })
+    const savedPersonalPricing = localStorage.getItem("personalPricing")
+    const savedEnterprisePricing = localStorage.getItem("enterprisePricing")
+    const savedDeepServicePricing = localStorage.getItem("deepServicePricing")
+
+    if (savedPersonalPricing) {
+      setPersonalPricing(JSON.parse(savedPersonalPricing))
+    }
+    if (savedEnterprisePricing) {
+      setEnterprisePricing(JSON.parse(savedEnterprisePricing))
+    }
+    if (savedDeepServicePricing) {
+      setDeepServicePricing(JSON.parse(savedDeepServicePricing))
     }
   }, [])
 
-  // 保存配置
-  const savePricing = () => {
-    localStorage.setItem("pricingConfig", JSON.stringify(pricing))
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 2000)
+  // 保存价格设置
+  const handleSavePersonalPricing = () => {
+    localStorage.setItem("personalPricing", JSON.stringify(personalPricing))
+    showSaveSuccess()
   }
 
-  // 价格项配置
-  const priceItems = [
-    { key: "faceTest", label: "AI人脸测试", desc: "面相性格分析" },
-    { key: "mbtiTest", label: "MBTI测试", desc: "90题专业测试" },
-    { key: "pdpTest", label: "PDP测试", desc: "行为风格测试" },
-    { key: "discTest", label: "DISC测试", desc: "沟通风格测试" },
-    { key: "fullReport", label: "完整报告", desc: "综合分析报告" },
-    { key: "teamAnalysis", label: "团队分析", desc: "企业团队诊断" },
-  ]
+  const handleSaveEnterprisePricing = () => {
+    localStorage.setItem("enterprisePricing", JSON.stringify(enterprisePricing))
+    showSaveSuccess()
+  }
+
+  const handleSaveDeepServicePricing = () => {
+    localStorage.setItem("deepServicePricing", JSON.stringify(deepServicePricing))
+    showSaveSuccess()
+  }
+
+  const showSaveSuccess = () => {
+    setSaveSuccess(true)
+    setTimeout(() => setSaveSuccess(false), 3000)
+  }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">价格设置</h1>
-        <p className="text-gray-500 mt-1">管理各类测试和服务的定价</p>
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>价格设置</CardTitle>
+        <CardDescription>设置个人版和企业版的价格配置</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {saveSuccess && (
+          <Alert className="mb-6 bg-green-50 border-green-200 text-green-800">
+            <CheckCircle className="h-4 w-4 mr-2" />
+            <AlertDescription>价格设置已成功保存</AlertDescription>
+          </Alert>
+        )}
 
-      {isSaved && (
-        <Alert className="bg-green-50 border-green-200">
-          <Check className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-700">价格配置已保存</AlertDescription>
-        </Alert>
-      )}
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="personal">个人版价格</TabsTrigger>
+            <TabsTrigger value="enterprise">企业版价格</TabsTrigger>
+            <TabsTrigger value="deepService">深度服务价格</TabsTrigger>
+          </TabsList>
 
-      {/* 测试价格 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <DollarSign className="h-5 w-5 text-amber-500" />
-            测试定价
-          </CardTitle>
-          <CardDescription>设置各类测试的单次收费价格（单位：元）</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {priceItems.map((item) => (
-              <div key={item.key} className="space-y-2">
-                <Label htmlFor={item.key}>{item.label}</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">¥</span>
+          <TabsContent value="personal">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="personal-face-test">人脸测试价格 (元/次)</Label>
                   <Input
-                    id={item.key}
+                    id="personal-face-test"
                     type="number"
-                    min="0"
-                    step="0.01"
-                    value={pricing[item.key as keyof PricingConfig] as number}
-                    onChange={(e) => setPricing({
-                      ...pricing,
-                      [item.key]: parseFloat(e.target.value) || 0
-                    })}
-                    className="pl-8"
+                    value={personalPricing.faceTest}
+                    onChange={(e) => setPersonalPricing({ ...personalPricing, faceTest: Number(e.target.value) })}
+                    min="1"
                   />
                 </div>
-                <p className="text-xs text-gray-500">{item.desc}</p>
+
+                <div className="space-y-2">
+                  <Label htmlFor="personal-mbti-test">MBTI测试价格 (元/次)</Label>
+                  <Input
+                    id="personal-mbti-test"
+                    type="number"
+                    value={personalPricing.mbtiTest}
+                    onChange={(e) => setPersonalPricing({ ...personalPricing, mbtiTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="personal-pdp-test">PDP测试价格 (元/次)</Label>
+                  <Input
+                    id="personal-pdp-test"
+                    type="number"
+                    value={personalPricing.pdpTest}
+                    onChange={(e) => setPersonalPricing({ ...personalPricing, pdpTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="personal-disc-test">DISC测试价格 (元/次)</Label>
+                  <Input
+                    id="personal-disc-test"
+                    type="number"
+                    value={personalPricing.discTest}
+                    onChange={(e) => setPersonalPricing({ ...personalPricing, discTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="personal-full-report">完整报告价格 (元/份)</Label>
+                  <Input
+                    id="personal-full-report"
+                    type="number"
+                    value={personalPricing.fullReport}
+                    onChange={(e) => setPersonalPricing({ ...personalPricing, fullReport: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* 促销设置 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Percent className="h-5 w-5 text-rose-500" />
-            促销活动
-          </CardTitle>
-          <CardDescription>设置促销折扣和优惠活动</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>启用促销折扣</Label>
-              <p className="text-sm text-gray-500">开启后所有测试享受折扣价格</p>
+              <Button onClick={handleSavePersonalPricing}>保存个人版价格设置</Button>
             </div>
-            <Switch
-              checked={pricing.enablePromo}
-              onCheckedChange={(checked) => setPricing({ ...pricing, enablePromo: checked })}
-            />
-          </div>
+          </TabsContent>
 
-          {pricing.enablePromo && (
-            <div className="space-y-2">
-              <Label htmlFor="promoDiscount">折扣比例 (%)</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="promoDiscount"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={pricing.promoDiscount}
-                  onChange={(e) => setPricing({
-                    ...pricing,
-                    promoDiscount: parseInt(e.target.value) || 0
-                  })}
-                  className="w-32"
-                />
-                <span className="text-gray-500">%OFF</span>
+          <TabsContent value="enterprise">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-face-test">人脸测试价格 (元/次)</Label>
+                  <Input
+                    id="enterprise-face-test"
+                    type="number"
+                    value={enterprisePricing.faceTest}
+                    onChange={(e) => setEnterprisePricing({ ...enterprisePricing, faceTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-mbti-test">MBTI测试价格 (元/次)</Label>
+                  <Input
+                    id="enterprise-mbti-test"
+                    type="number"
+                    value={enterprisePricing.mbtiTest}
+                    onChange={(e) => setEnterprisePricing({ ...enterprisePricing, mbtiTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-pdp-test">PDP测试价格 (元/次)</Label>
+                  <Input
+                    id="enterprise-pdp-test"
+                    type="number"
+                    value={enterprisePricing.pdpTest}
+                    onChange={(e) => setEnterprisePricing({ ...enterprisePricing, pdpTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-disc-test">DISC测试价格 (元/次)</Label>
+                  <Input
+                    id="enterprise-disc-test"
+                    type="number"
+                    value={enterprisePricing.discTest}
+                    onChange={(e) => setEnterprisePricing({ ...enterprisePricing, discTest: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-full-report">完整报告价格 (元/份)</Label>
+                  <Input
+                    id="enterprise-full-report"
+                    type="number"
+                    value={enterprisePricing.fullReport}
+                    onChange={(e) => setEnterprisePricing({ ...enterprisePricing, fullReport: Number(e.target.value) })}
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-team-analysis">团队分析价格 (元/次)</Label>
+                  <Input
+                    id="enterprise-team-analysis"
+                    type="number"
+                    value={enterprisePricing.teamAnalysis}
+                    onChange={(e) =>
+                      setEnterprisePricing({ ...enterprisePricing, teamAnalysis: Number(e.target.value) })
+                    }
+                    min="1"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-min-recharge">最低充值金额 (元)</Label>
+                  <Input
+                    id="enterprise-min-recharge"
+                    type="number"
+                    value={enterprisePricing.minRecharge}
+                    onChange={(e) =>
+                      setEnterprisePricing({ ...enterprisePricing, minRecharge: Number(e.target.value) })
+                    }
+                    min="100"
+                    step="100"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="enterprise-tests-per-recharge">每次充值测试次数</Label>
+                  <Input
+                    id="enterprise-tests-per-recharge"
+                    type="number"
+                    value={enterprisePricing.testsPerRecharge}
+                    onChange={(e) =>
+                      setEnterprisePricing({ ...enterprisePricing, testsPerRecharge: Number(e.target.value) })
+                    }
+                    min="1"
+                  />
+                  <p className="text-xs text-gray-500">
+                    每充值 {enterprisePricing.minRecharge} 元可获得 {enterprisePricing.testsPerRecharge} 次测试
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-gray-500">当前折扣后价格示例：MBTI测试 ¥{(pricing.mbtiTest * (1 - pricing.promoDiscount / 100)).toFixed(2)}</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* 免费试用 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Gift className="h-5 w-5 text-green-500" />
-            免费试用
-          </CardTitle>
-          <CardDescription>设置新用户免费试用政策</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>启用免费试用</Label>
-              <p className="text-sm text-gray-500">新用户可免费体验指定次数的测试</p>
+              <Button onClick={handleSaveEnterprisePricing}>保存企业版价格设置</Button>
             </div>
-            <Switch
-              checked={pricing.freeTrialEnabled}
-              onCheckedChange={(checked) => setPricing({ ...pricing, freeTrialEnabled: checked })}
-            />
-          </div>
+          </TabsContent>
 
-          {pricing.freeTrialEnabled && (
-            <div className="space-y-2">
-              <Label htmlFor="freeTrialCount">免费次数</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="freeTrialCount"
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={pricing.freeTrialCount}
-                  onChange={(e) => setPricing({
-                    ...pricing,
-                    freeTrialCount: parseInt(e.target.value) || 1
-                  })}
-                  className="w-32"
-                />
-                <span className="text-gray-500">次</span>
+          <TabsContent value="deepService">
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="deep-personal-service">个人深度服务 (元/次)</Label>
+                  <Input
+                    id="deep-personal-service"
+                    type="number"
+                    value={deepServicePricing.personalService}
+                    onChange={(e) =>
+                      setDeepServicePricing({ ...deepServicePricing, personalService: Number(e.target.value) })
+                    }
+                    min="1"
+                  />
+                  <p className="text-xs text-gray-500">默认价格为198元/次，提供深入浅出的内容输出和相关分析解读</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="deep-team-service">团队深度服务 (元/人次)</Label>
+                  <Input
+                    id="deep-team-service"
+                    type="number"
+                    value={deepServicePricing.teamService}
+                    onChange={(e) =>
+                      setDeepServicePricing({ ...deepServicePricing, teamService: Number(e.target.value) })
+                    }
+                    min="1"
+                  />
+                  <p className="text-xs text-gray-500">默认价格为1980元/人次，采用与个人版类似的服务方式</p>
+                </div>
               </div>
-              <p className="text-xs text-gray-500">新用户注册后可免费使用{pricing.freeTrialCount}次任意测试</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {/* 保存按钮 */}
-      <div className="flex justify-end">
-        <Button onClick={savePricing} className="min-w-[120px]">
-          {isSaved ? (
-            <>
-              <Check className="h-4 w-4 mr-2" />
-              已保存
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4 mr-2" />
-              保存配置
-            </>
-          )}
-        </Button>
-      </div>
-    </div>
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100 mt-4">
+                <p className="text-sm text-blue-700">
+                  注意：价格的分段机制以及企业版的相关内容已移至ADMIN后台进行管理和设置。
+                </p>
+              </div>
+
+              <Button onClick={handleSaveDeepServicePricing}>保存深度服务价格设置</Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   )
 }

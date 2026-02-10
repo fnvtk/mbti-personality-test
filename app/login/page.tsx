@@ -1,147 +1,116 @@
 "use client"
 
 import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Phone, Lock, Sparkles } from "lucide-react"
+
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ArrowLeft } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [phone, setPhone] = useState("")
-  const [code, setCode] = useState("")
-  const [countdown, setCountdown] = useState(0)
-  const [loading, setLoading] = useState(false)
+  const searchParams = useSearchParams()
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  })
   const [error, setError] = useState("")
 
-  const handleSendCode = () => {
-    if (!phone || phone.length !== 11) {
-      setError("请输入正确的手机号")
-      return
+  // 获取重定向URL
+  const redirectUrl = searchParams.get("redirect") || "/dashboard"
+
+  useEffect(() => {
+    // 检查是否已登录
+    const userId = sessionStorage.getItem("currentUserId")
+    if (userId) {
+      router.push(redirectUrl)
     }
-    setError("")
-    setCountdown(60)
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+  }, [redirectUrl, router])
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!phone || !code) {
-      setError("请填写完整信息")
+
+    // 简单验证
+    if (!formData.username || !formData.password) {
+      setError("请输入用户名和密码")
       return
     }
-    setLoading(true)
-    setError("")
-    setTimeout(() => {
-      localStorage.setItem("userId", `user_${Date.now()}`)
-      localStorage.setItem("userPhone", phone)
-      router.push("/")
-    }, 1500)
+
+    // 模拟登录成功
+    // 在实际应用中，这里应该调用API进行身份验证
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    sessionStorage.setItem("currentUserId", userId)
+
+    // 登录成功后重定向
+    router.push(redirectUrl)
   }
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto flex flex-col gradient-bg">
-      {/* 背景 */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-60 h-60 bg-orange-500/20 rounded-full blur-[80px]" />
+    <div className="w-full max-w-md mx-auto h-screen flex flex-col bg-white">
+      <div className="p-4 flex items-center">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
+        <h1 className="flex-1 text-center text-lg font-medium mr-10">登录</h1>
       </div>
 
-      {/* 头部 */}
-      <header className="relative z-10">
-        <div className="flex items-center px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-        </div>
-      </header>
+      <div className="flex-1 flex flex-col justify-center p-6">
+        {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">{error}</div>}
 
-      {/* 主内容 */}
-      <main className="flex-1 relative z-10 px-5 py-6">
-        {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="w-20 h-20 rounded-3xl gradient-primary flex items-center justify-center mx-auto mb-4 glow-orange">
-            <Sparkles className="w-10 h-10 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white">发型魔镜</h1>
-          <p className="text-white/50 mt-2">登录后享受更多服务</p>
-        </div>
-
-        {/* 表单 */}
-        <form onSubmit={handleLogin} className="space-y-4">
-          {error && (
-            <div className="glass-card rounded-xl p-3 border border-red-500/30 bg-red-500/10">
-              <p className="text-red-400 text-sm text-center">{error}</p>
-            </div>
-          )}
-
-          <div className="glass-card rounded-xl p-4 border border-white/10">
-            <div className="flex items-center gap-3">
-              <Phone className="w-5 h-5 text-white/40" />
-              <Input
-                type="tel"
-                placeholder="请输入手机号"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                maxLength={11}
-                className="border-0 bg-transparent focus-visible:ring-0 p-0 text-base text-white placeholder:text-white/40"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <label htmlFor="username" className="text-sm font-medium">
+              手机号/邮箱
+            </label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              required
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="请输入手机号或邮箱"
+              className="h-12"
+            />
           </div>
 
-          <div className="glass-card rounded-xl p-4 border border-white/10">
-            <div className="flex items-center gap-3">
-              <Lock className="w-5 h-5 text-white/40" />
-              <Input
-                type="text"
-                placeholder="请输入验证码"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                maxLength={6}
-                className="border-0 bg-transparent focus-visible:ring-0 p-0 text-base flex-1 text-white placeholder:text-white/40"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleSendCode}
-                disabled={countdown > 0}
-                className="text-orange-400 hover:text-orange-300 hover:bg-transparent px-0"
-              >
-                {countdown > 0 ? `${countdown}s` : "获取验证码"}
-              </Button>
-            </div>
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              密码
+            </label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="请输入密码"
+              className="h-12"
+            />
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full gradient-primary text-white rounded-xl py-6 text-lg font-medium mt-6"
-          >
-            {loading ? (
-              <span className="flex items-center gap-2">
-                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                登录中...
-              </span>
-            ) : (
-              "登录"
-            )}
+          <Button type="submit" className="w-full h-12 bg-purple-600 hover:bg-purple-700">
+            登录
           </Button>
-        </form>
 
-        <p className="text-center text-xs text-white/30 mt-6">
-          登录即表示同意
-          <span className="text-orange-400">《用户协议》</span>和<span className="text-orange-400">《隐私政策》</span>
-        </p>
-      </main>
+          <div className="flex justify-between text-sm">
+            <Link href="/forgot-password" className="text-purple-600">
+              忘记密码
+            </Link>
+            <Link href="/register" className="text-purple-600">
+              注册账号
+            </Link>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

@@ -24,7 +24,7 @@ export default function SuperAdminLoginPage() {
     setError("")
 
     try {
-      if (username === "admin" && password === "k123456") {
+      if (username === "superadmin" && password === "key123456") {
         // 登录成功
         localStorage.setItem("superAdminLoggedIn", "true")
         router.push("/superadmin")

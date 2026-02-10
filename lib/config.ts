@@ -19,7 +19,8 @@ export const blobConfig = {
 
 export const aiConfig = {
   groqApiKey: process.env.GROQ_API_KEY || "",
-  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  cozeApiKey: process.env.COZE_API_KEY || "",
+  cozeBotId: process.env.COZE_BOT_ID || "",
 }
 
 export const groqConfig = {

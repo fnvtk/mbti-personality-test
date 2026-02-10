@@ -2,193 +2,215 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
 import BottomNav from "@/components/bottom-nav"
 import { Button } from "@/components/ui/button"
-import { Camera, ChevronRight, Sparkles } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Building, ChevronRight } from "lucide-react"
 
-// MBTI 16类型角色数据
-const bossTeam = [
-  { type: "ENTJ", name: "镇山的虎", emoji: "🐯" },
-  { type: "ESTJ", name: "敏捷的豹", emoji: "🐆" },
-  { type: "INTJ", name: "远见的鹰", emoji: "🦅" },
-  { type: "ISTP", name: "善战的狼", emoji: "🐺" },
-  { type: "ENTP", name: "狡诈的狐", emoji: "🦊" },
-]
-
-const realTeam = [
-  { type: "ENFP", name: "装饭的桶", emoji: "🪣" },
-  { type: "ENFJ", name: "看门的狗", emoji: "🐕" },
-  { type: "ENTP", name: "搅屎的棍", emoji: "🥢" },
-  { type: "ISTJ", name: "生产的驴", emoji: "🫏" },
-  { type: "ESFP", name: "出头的鸟", emoji: "🐦" },
-  { type: "INTP", name: "划水的鱼", emoji: "🐟" },
-  { type: "ISFJ", name: "做猴的鸡", emoji: "🐔" },
-  { type: "ESTP", name: "害群的马", emoji: "🐴" },
-  { type: "INFP", name: "退堂的鼓", emoji: "🥁" },
-]
-
-export default function HomePage() {
+export default function MainPage() {
   const router = useRouter()
   const [adminClicks, setAdminClicks] = useState(0)
+  const [isEnterpriseMode, setIsEnterpriseMode] = useState(false)
 
+  // 处理标题点击，用于进入管理后台
   const handleTitleClick = () => {
     setAdminClicks((prev) => {
       const newCount = prev + 1
+      // 连续点击5次进入管理后台
       if (newCount >= 5) {
-        router.push("/admin/login")
+        router.push("/admin")
         return 0
       }
       return newCount
     })
   }
 
+  // 切换企业模式
+  const toggleEnterpriseMode = () => {
+    setIsEnterpriseMode(!isEnterpriseMode)
+  }
+
   return (
-    <div className="w-full max-w-md mx-auto min-h-screen flex flex-col bg-gradient-to-b from-rose-50 via-white to-rose-50">
-      {/* 顶部 */}
-      <header className="px-4 pt-4 pb-2 safe-area-top">
-        <div className="flex items-center justify-center">
-          <Sparkles className="h-5 w-5 text-rose-500 mr-2" />
-          <h1 className="text-lg font-bold cursor-pointer" onClick={handleTitleClick}>
-            神仙团队AI性格测试
-          </h1>
+    <div className="w-full max-w-md mx-auto h-screen flex flex-col bg-white">
+      {/* 标题栏 */}
+      <div className="px-4 py-3 flex items-center justify-between bg-white border-b border-gray-100">
+        <h1 className="text-[17px] font-medium text-center flex-1" onClick={handleTitleClick}>
+          神仙团队AI性格测试
+          {isEnterpriseMode && <span className="text-xs ml-1 text-purple-600">(企业版)</span>}
+        </h1>
+        <div className="flex items-center gap-3">
+          <button className="text-[#576b95]" onClick={toggleEnterpriseMode}>
+            <Building className="h-5 w-5" />
+          </button>
         </div>
-      </header>
+      </div>
 
-      {/* 主内容区 */}
-      <main className="flex-1 px-4 pb-24 overflow-auto">
-        
-        {/* MBTI团队角色图卡片 */}
-        <div className="bg-white rounded-3xl shadow-lg overflow-hidden mb-5">
-          {/* 老板想要的团队 */}
-          <div className="bg-gradient-to-br from-rose-50 to-pink-50 p-5 pb-4">
-            <h2 className="text-center text-red-600 font-black text-lg mb-4">老板想要的团队</h2>
-            <div className="flex justify-center gap-3">
-              {bossTeam.map((item) => (
-                <div key={item.type} className="text-center" onClick={() => router.push(`/test/mbti`)}>
-                  <div className="w-12 h-12 rounded-full bg-white shadow-md flex items-center justify-center text-2xl mb-1 mx-auto border-2 border-rose-200">
-                    {item.emoji}
-                  </div>
-                  <p className="text-[10px] font-bold text-rose-600">{item.type}</p>
-                  <p className="text-[9px] text-gray-500">{item.name}</p>
+      {isEnterpriseMode ? (
+        // 企业版首页
+        <div className="flex-1 flex flex-col">
+          {/* 主图区域 */}
+          <div className="relative w-full flex-1 flex items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
+            {/* 背景装饰 */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-10 -right-10 w-40 h-40 bg-purple-200 rounded-full opacity-20 animate-pulse"></div>
+              <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
+            </div>
+
+            {/* 圆形主图 */}
+            <div className="relative w-[85%] aspect-square max-w-[400px] rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden">
+              <Image
+                src="/images/mbti-team-types.png"
+                alt="团队性格类型分析"
+                fill
+                className="object-contain p-6"
+                priority
+              />
+
+              {/* 浮动标签 */}
+              <div className="absolute top-[10%] right-[5%] animate-fade-in">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-100">
+                  <span className="text-purple-600 text-sm font-medium">团队性格分析</span>
                 </div>
-              ))}
-            </div>
-
-            {/* 标签 */}
-            <div className="flex justify-end mt-2">
-              <span className="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">MBTI性格分析</span>
-            </div>
-          </div>
-
-          {/* 现实中的团队 */}
-          <div className="p-5 pt-4">
-            <h2 className="text-center text-red-600 font-black text-lg mb-4">现实中的团队</h2>
-            <div className="grid grid-cols-5 gap-2">
-              {realTeam.map((item, i) => (
-                <div key={`${item.type}-${i}`} className="text-center">
-                  <div className="w-10 h-10 rounded-full bg-gray-50 shadow-sm flex items-center justify-center text-xl mb-1 mx-auto border border-gray-200">
-                    {item.emoji}
-                  </div>
-                  <p className="text-[9px] font-bold text-gray-600">{item.type}</p>
-                  <p className="text-[8px] text-gray-400 leading-tight">{item.name}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* 底部标签 */}
-            <div className="flex justify-between mt-3">
-              <span className="bg-amber-100 text-amber-700 text-[10px] px-2 py-0.5 rounded-full">性格匹配</span>
-              <span className="bg-purple-100 text-purple-700 text-[10px] px-2 py-0.5 rounded-full">特质评估</span>
-            </div>
-          </div>
-        </div>
-
-        {/* 测试流程 */}
-        <div className="mb-5">
-          <h2 className="text-center text-rose-500 font-bold text-base mb-4">测试流程</h2>
-          <div className="flex items-center justify-center gap-2">
-            {[
-              { step: 1, label: "STEP1", desc: "拍摄照片", color: "bg-red-500" },
-              { step: 2, label: "STEP2", desc: "AI分析", color: "bg-gray-400" },
-              { step: 3, label: "STEP3", desc: "性格测试", color: "bg-gray-400" },
-            ].map((item, i) => (
-              <div key={item.step} className="flex items-center">
-                <div className="text-center">
-                  <div className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg mx-auto mb-1",
-                    item.color
-                  )}>
-                    {item.step}
-                  </div>
-                  <p className="text-[10px] text-gray-500">{item.label}</p>
-                  <p className="text-xs font-medium">{item.desc}</p>
-                </div>
-                {i < 2 && (
-                  <div className="w-8 h-0.5 bg-rose-200 mx-1 -mt-5" />
-                )}
               </div>
-            ))}
+
+              <div className="absolute bottom-[15%] left-[5%] animate-fade-in delay-300">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-100">
+                  <span className="text-purple-600 text-sm font-medium">人才匹配</span>
+                </div>
+              </div>
+
+              <div className="absolute bottom-[10%] right-[8%] animate-fade-in delay-600">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-100">
+                  <span className="text-purple-600 text-sm font-medium">团队优化</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 企业版功能按钮 */}
+          <div className="px-6 py-6 space-y-4 bg-white">
+            <Button
+              className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white rounded-2xl font-medium text-lg shadow-lg"
+              onClick={() => router.push("/camera")}
+            >
+              开始AI面部测试
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full py-4 border-2 border-purple-300 text-purple-700 hover:bg-purple-50 rounded-2xl font-medium text-lg bg-transparent"
+              onClick={() => router.push("/resume-upload-enterprise")}
+            >
+              上传候选人简历
+            </Button>
+            <div className="pt-2">
+              <Button
+                variant="link"
+                className="w-full text-purple-600 flex items-center justify-center hover:text-purple-700"
+                onClick={() => router.push("/enterprise-dashboard")}
+              >
+                <span>进入企业管理后台</span>
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
           </div>
         </div>
+      ) : (
+        // 个人版首页
+        <div className="flex-1 flex flex-col">
+          {/* 主图区域 */}
+          <div className="relative w-full flex-1 flex items-center justify-center bg-gradient-to-br from-pink-50 via-red-50 to-orange-50">
+            {/* 背景装饰 */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute top-20 right-10 w-32 h-32 bg-red-200 rounded-full opacity-20 animate-bounce"></div>
+              <div className="absolute bottom-32 left-8 w-24 h-24 bg-pink-200 rounded-full opacity-20 animate-bounce delay-500"></div>
+              <div className="absolute top-1/2 left-4 w-16 h-16 bg-orange-200 rounded-full opacity-20 animate-bounce delay-1000"></div>
+            </div>
 
-        {/* AI面部测试按钮 */}
-        <Button 
-          className="w-full py-6 rounded-2xl bg-gradient-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white text-lg font-bold shadow-lg shadow-rose-200 mb-4"
-          onClick={() => router.push("/camera")}
-        >
-          <Camera className="h-5 w-5 mr-2" />
-          开始AI面部测试
-        </Button>
+            {/* 圆形主图 */}
+            <div className="relative w-[85%] aspect-square max-w-[400px] rounded-full bg-white shadow-xl flex items-center justify-center overflow-hidden">
+              <Image
+                src="/images/mbti-team-image.png"
+                alt="MBTI性格类型"
+                fill
+                className="object-contain p-6"
+                priority
+              />
 
-        {/* 其他测试入口 */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          <Button 
-            variant="outline"
-            className="flex flex-col items-center py-4 h-auto rounded-xl border-purple-200 hover:bg-purple-50"
-            onClick={() => router.push("/test/mbti")}
-          >
-            <span className="text-lg mb-1">🧠</span>
-            <span className="text-xs font-medium">MBTI测试</span>
-            <span className="text-[10px] text-gray-400">90题</span>
-          </Button>
-          <Button 
-            variant="outline"
-            className="flex flex-col items-center py-4 h-auto rounded-xl border-blue-200 hover:bg-blue-50"
-            onClick={() => router.push("/test/disc")}
-          >
-            <span className="text-lg mb-1">💬</span>
-            <span className="text-xs font-medium">DISC测试</span>
-            <span className="text-[10px] text-gray-400">20题</span>
-          </Button>
-          <Button 
-            variant="outline"
-            className="flex flex-col items-center py-4 h-auto rounded-xl border-amber-200 hover:bg-amber-50"
-            onClick={() => router.push("/test/pdp")}
-          >
-            <span className="text-lg mb-1">🐯</span>
-            <span className="text-xs font-medium">PDP测试</span>
-            <span className="text-[10px] text-gray-400">20题</span>
-          </Button>
-        </div>
+              {/* 浮动标签 */}
+              <div className="absolute top-[12%] right-[8%] animate-fade-in">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-red-100">
+                  <span className="text-red-600 text-sm font-medium">MBTI性格分析</span>
+                </div>
+              </div>
 
-        {/* 定价入口 */}
-        <div 
-          className="bg-gradient-to-r from-purple-50 to-rose-50 rounded-2xl p-4 flex items-center justify-between cursor-pointer"
-          onClick={() => router.push("/pricing")}
-        >
-          <div>
-            <p className="text-sm font-bold">个人深度洞察版</p>
-            <p className="text-xs text-gray-500">AI面相+MBTI+PDP+DISC+盖洛普</p>
+              <div className="absolute bottom-[20%] left-[8%] animate-fade-in delay-300">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-red-100">
+                  <span className="text-red-600 text-sm font-medium">性格匹配</span>
+                </div>
+              </div>
+
+              <div className="absolute bottom-[12%] right-[10%] animate-fade-in delay-600">
+                <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-red-100">
+                  <span className="text-red-600 text-sm font-medium">特质评估</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-rose-600">¥198</span>
-            <ChevronRight className="h-4 w-4 text-gray-400" />
+
+          {/* 测试流程 */}
+          <div className="px-6 py-6 bg-white">
+            <h3 className="text-xl font-bold text-center text-red-600 mb-6">测试流程</h3>
+
+            <div className="relative flex items-center justify-between mb-8">
+              {/* 连接线 */}
+              <div className="absolute left-0 right-0 top-6 h-0.5 bg-gradient-to-r from-red-200 via-red-300 to-red-200"></div>
+
+              {/* 步骤1 */}
+              <div className="relative flex flex-col items-center bg-white px-2">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-bold text-lg mb-3 shadow-lg">
+                  1
+                </div>
+                <div className="text-center">
+                  <div className="text-gray-500 text-xs mb-1">STEP1</div>
+                  <div className="font-medium text-sm">拍摄照片</div>
+                </div>
+              </div>
+
+              {/* 步骤2 */}
+              <div className="relative flex flex-col items-center bg-white px-2">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white font-bold text-lg mb-3 shadow-lg">
+                  2
+                </div>
+                <div className="text-center">
+                  <div className="text-gray-500 text-xs mb-1">STEP2</div>
+                  <div className="font-medium text-sm">AI分析</div>
+                </div>
+              </div>
+
+              {/* 步骤3 */}
+              <div className="relative flex flex-col items-center bg-white px-2">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center text-white font-bold text-lg mb-3 shadow-lg">
+                  3
+                </div>
+                <div className="text-center">
+                  <div className="text-gray-500 text-xs mb-1">STEP3</div>
+                  <div className="font-medium text-sm">性格测试</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 开始测试按钮 */}
+            <Button
+              className="w-full py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white rounded-2xl font-medium text-lg shadow-lg transform hover:scale-105 transition-all duration-200"
+              onClick={() => router.push("/camera")}
+            >
+              开始AI面部测试
+            </Button>
           </div>
         </div>
+      )}
 
-      </main>
-
+      {/* 底部导航 */}
       <BottomNav currentPath="/" />
     </div>
   )

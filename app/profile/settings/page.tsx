@@ -1,147 +1,166 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, User, Bell, Shield, HelpCircle, ChevronRight, LogOut, Moon, Globe } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { ArrowLeft, User, Bell, Shield, HelpCircle, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 
 export default function SettingsPage() {
   const router = useRouter()
   const [notifications, setNotifications] = useState(true)
-  const [darkMode, setDarkMode] = useState(true)
+  const [darkMode, setDarkMode] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const settingItems = [
-    {
-      icon: User,
-      label: "账号与安全",
-      desc: "修改密码、绑定手机",
-      color: "from-blue-500 to-cyan-500",
-      path: "/profile/account",
-    },
-    {
-      icon: Shield,
-      label: "隐私设置",
-      desc: "管理你的数据",
-      color: "from-green-500 to-emerald-500",
-      path: "/profile/privacy",
-    },
-    {
-      icon: HelpCircle,
-      label: "帮助与反馈",
-      desc: "常见问题、联系客服",
-      color: "from-orange-500 to-amber-500",
-      path: "/profile/help",
-    },
-  ]
+  useEffect(() => {
+    // 检查是否有当前用户ID
+    const userId = sessionStorage.getItem("currentUserId")
+    if (userId) {
+      setIsLoggedIn(true)
+    }
+  }, [])
+
+  // 处理登出
+  const handleLogout = () => {
+    sessionStorage.removeItem("currentUserId")
+    router.push("/profile")
+  }
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto flex flex-col gradient-bg">
-      {/* 背景装饰 */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-0 w-40 h-40 bg-orange-500/10 rounded-full blur-[60px]" />
-        <div className="absolute bottom-40 left-0 w-60 h-60 bg-red-500/10 rounded-full blur-[80px]" />
+    <div className="w-full max-w-md mx-auto h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="px-5 py-3 flex items-center bg-white">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="flex-1 text-center text-[17px] mr-10">个人设置</h1>
       </div>
 
-      {/* 头部 */}
-      <header className="relative z-10 glass-nav sticky top-0">
-        <div className="flex items-center px-4 py-4">
-          <button onClick={() => router.back()} className="p-2 -ml-2 rounded-xl hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="flex-1 text-center font-semibold text-white">设置</h1>
-          <div className="w-9" />
-        </div>
-      </header>
-
-      {/* 主内容 */}
-      <main className="flex-1 relative z-10 px-5 py-6 pb-24 space-y-4">
-        {/* 开关设置 */}
-        <div className="glass-card rounded-2xl overflow-hidden border border-white/10">
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                <Bell className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="font-medium text-white">消息通知</span>
-                <p className="text-xs text-white/50">接收新功能和优惠通知</p>
-              </div>
-            </div>
-            <Switch checked={notifications} onCheckedChange={setNotifications} />
+      <div className="p-4 flex-1 overflow-auto space-y-4">
+        {/* 账号设置 */}
+        <Card className="p-4">
+          <div className="flex items-center mb-4">
+            <User className="h-5 w-5 mr-2 text-purple-500" />
+            <h2 className="font-medium">账号设置</h2>
           </div>
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <Moon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="font-medium text-white">深色模式</span>
-                <p className="text-xs text-white/50">保护眼睛，夜间使用更舒适</p>
-              </div>
-            </div>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-          </div>
-        </div>
 
-        {/* 菜单项 */}
-        <div className="glass-card rounded-2xl overflow-hidden border border-white/10">
-          {settingItems.map((item, index) => (
+          <div className="space-y-4">
             <div
-              key={index}
-              onClick={() => router.push(item.path)}
-              className={`flex items-center justify-between p-4 cursor-pointer hover:bg-white/5 transition-colors ${
-                index !== settingItems.length - 1 ? "border-b border-white/10" : ""
-              }`}
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/edit")}
             >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center`}
-                >
-                  <item.icon className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <span className="font-medium text-white">{item.label}</span>
-                  <p className="text-xs text-white/50">{item.desc}</p>
-                </div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-white/30" />
+              <span>编辑个人资料</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
             </div>
-          ))}
-        </div>
 
-        {/* 语言设置 */}
-        <div className="glass-card rounded-2xl p-4 border border-white/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gray-500 to-gray-600 flex items-center justify-center">
-                <Globe className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <span className="font-medium text-white">语言</span>
-                <p className="text-xs text-white/50">当前：简体中文</p>
-              </div>
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/password")}
+            >
+              <span>修改密码</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
             </div>
-            <ChevronRight className="w-5 h-5 text-white/30" />
+
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/bind")}
+            >
+              <span>绑定手机/邮箱</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
           </div>
-        </div>
+        </Card>
+
+        {/* 通知设置 */}
+        <Card className="p-4">
+          <div className="flex items-center mb-4">
+            <Bell className="h-5 w-5 mr-2 text-blue-500" />
+            <h2 className="font-medium">通知设置</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="notifications">接收消息通知</Label>
+              <Switch id="notifications" checked={notifications} onCheckedChange={setNotifications} />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label htmlFor="darkMode">深色模式</Label>
+              <Switch id="darkMode" checked={darkMode} onCheckedChange={setDarkMode} />
+            </div>
+          </div>
+        </Card>
+
+        {/* 隐私与安全 */}
+        <Card className="p-4">
+          <div className="flex items-center mb-4">
+            <Shield className="h-5 w-5 mr-2 text-green-500" />
+            <h2 className="font-medium">隐私与安全</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/privacy")}
+            >
+              <span>隐私设置</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
+
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/data")}
+            >
+              <span>数据管理</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
+          </div>
+        </Card>
+
+        {/* 帮助与支持 */}
+        <Card className="p-4">
+          <div className="flex items-center mb-4">
+            <HelpCircle className="h-5 w-5 mr-2 text-yellow-500" />
+            <h2 className="font-medium">帮助与支持</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/help")}
+            >
+              <span>帮助中心</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
+
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/feedback")}
+            >
+              <span>意见反馈</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
+
+            <div
+              className="flex items-center justify-between cursor-pointer"
+              onClick={() => router.push("/profile/about")}
+            >
+              <span>关于我们</span>
+              <ArrowLeft className="h-4 w-4 text-gray-400 transform rotate-180" />
+            </div>
+          </div>
+        </Card>
 
         {/* 退出登录 */}
-        <Button
-          variant="outline"
-          onClick={() => {
-            localStorage.clear()
-            router.push("/login")
-          }}
-          className="w-full glass-card rounded-2xl py-4 h-auto border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-400"
-        >
-          <LogOut className="w-5 h-5 mr-2" />
-          退出登录
-        </Button>
-
-        {/* 版本信息 */}
-        <p className="text-center text-xs text-white/30 pt-4">发型魔镜 v1.0.0</p>
-      </main>
+        {isLoggedIn && (
+          <Button variant="destructive" className="w-full mt-4" onClick={handleLogout}>
+            <LogOut className="h-4 w-4 mr-2" />
+            退出登录
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

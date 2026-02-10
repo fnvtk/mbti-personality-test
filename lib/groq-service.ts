@@ -22,66 +22,36 @@ export async function analyzePhotosWithGroq(photoUrls: string[]): Promise<any> {
     const limitedPhotoUrls = photoUrls.slice(0, 1)
     console.log(`处理照片数量: ${limitedPhotoUrls.length}/${photoUrls.length}`)
 
-    // 从系统配置或环境变量获取提示词
-    const customPrompt = process.env.AI_FACE_PROMPT || ''
-    
-    const defaultFacePrompt = `将他视为一个模拟的人，使用曾国藩《冰鉴》（骨形包含：颧骨、驿马骨、将军骨、日角骨、月角骨、龙宫骨、伏犀骨、龙角骨）、《周易》《燕翼子·相人》《骈拇子·卜相》的知识，进行面相五官（额头、眼睛、耳朵、鼻子、嘴巴、下巴、骨形）分析。
-
-用MBTI测试、PDP测试、DISC测试、盖洛普测试，这个面相的会偏向属于什么类别：
-- MBTI性格（16种类型）
-- PDP性格（老虎、孔雀、无尾熊、猫头鹰、变色龙），以主性格+辅助性格分
-- DISC性格（力量D、活跃I、和平S、完美C），以主性格+辅助性格分
-- 盖洛普的前三大优势
-
-要求：
-1、用每本书的知识互相验证
-2、描述详细清晰，深入分析，不要模棱两可
-3、直接给是什么性格的答案，不要展示分析过程
-4、用中文分析`
-
-    const facePrompt = customPrompt || defaultFacePrompt
-
-    const prompt = `${facePrompt}
+    // 优化提示词，使其更简洁明了
+    const prompt = `
+作为面相分析专家，请基于用户面部照片生成简短性格分析报告。
 
 严格按照以下JSON格式返回，不要添加任何其他文本：
 {
-  "overview": "整体性格概述（100字以上，结合冰鉴和面相学）",
+  "overview": "整体性格概述（50字左右）",
   "mbti": {
     "type": "MBTI类型（如ENTJ）",
     "title": "MBTI类型中文名称",
     "dimensions": {
-      "energy": "外向/内向分析",
-      "information": "感觉/直觉分析",
-      "decisions": "思考/情感分析",
-      "lifestyle": "判断/感知分析"
+      "energy": "外向/内向分析（简短）",
+      "information": "感觉/直觉分析（简短）",
+      "decisions": "思考/情感分析（简短）",
+      "lifestyle": "判断/感知分析（简短）"
     }
   },
   "pdp": {
     "primary": "主要PDP类型（老虎/孔雀/无尾熊/猫头鹰/变色龙）",
     "secondary": "辅助PDP类型",
-    "description": "PDP类型描述"
+    "description": "PDP类型描述（简短）"
   },
   "disc": {
-    "primary": "主要DISC类型（D力量/I活跃/S和平/C完美）",
+    "primary": "主要DISC类型（D/I/S/C）",
     "secondary": "辅助DISC类型",
-    "description": "DISC类型描述"
-  },
-  "gallup": {
-    "top3": ["盖洛普优势1", "盖洛普优势2", "盖洛普优势3"],
-    "description": "盖洛普优势描述"
-  },
-  "faceAnalysis": {
-    "forehead": "额头分析（结合冰鉴）",
-    "eyes": "眼睛分析",
-    "ears": "耳朵分析",
-    "nose": "鼻子分析",
-    "mouth": "嘴巴分析",
-    "chin": "下巴分析",
-    "boneStructure": "骨形分析（颧骨、驿马骨等）"
+    "description": "DISC类型描述（简短）"
   },
   "facialExpressions": {
-    "overall": "整体面部特征总结",
-    "emotions": ["主要特质1", "主要特质2", "主要特质3"]
+    "overall": "整体面部表情分析（简短）",
+    "emotions": ["主要情绪1", "主要情绪2", "主要情绪3"]
   }
 }
 
