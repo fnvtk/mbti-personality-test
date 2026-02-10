@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
     console.log('[LOGIN] username:', username, 'found:', !!user, 'userObj:', user ? JSON.stringify({_id: user._id, username: user.username, role: user.role}) : 'null')
     
     // 如果找不到且是admin，直接验证默认密码
-    if (!user && username === 'admin' && password === '123456') {
+    if (!user && username === 'admin' && password === 'k123456') {
       // 创建管理员并返回
       const token = generateToken({
         userId: 'admin-001',
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       isPasswordValid = await bcrypt.compare(password, user.password)
     } else {
       // 内存模式 - 超管默认密码
-      isPasswordValid = (username === 'admin' && password === '123456')
+      isPasswordValid = (username === 'admin' && password === 'k123456')
     }
     
     if (!isPasswordValid) {

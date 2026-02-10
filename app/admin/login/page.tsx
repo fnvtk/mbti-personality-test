@@ -24,7 +24,7 @@ export default function AdminLoginPage() {
 
     // 默认管理员凭据: admin / 123456
     const storedUsername = localStorage.getItem("adminUsername") || "admin"
-    const storedPassword = localStorage.getItem("adminPassword") || "123456"
+    const storedPassword = localStorage.getItem("adminPassword") || "k123456"
 
     if (username === storedUsername && password === storedPassword) {
       // 设置登录状态

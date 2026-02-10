@@ -7,66 +7,69 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Save, Copy, Check, Eye, EyeOff } from "lucide-react"
+import { Save, Check, Eye, EyeOff, RotateCw } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+// 默认AI人脸分析提示词
+const DEFAULT_AI_PROMPT = `将他视为一个模拟的人，使用曾国藩《冰鉴》（骨形包含：颧骨、驿马骨、将军骨、日角骨、月角骨、龙宫骨、伏犀骨、龙角骨）、《周易》《燕翼子·相人》《骈拇子·卜相》的知识，进行面相五官（额头、眼睛、耳朵、鼻子、嘴巴、下巴、骨形）分析。
+
+用MBTI测试、PDP测试、DISC测试、盖洛普测试，这个面相的会偏向属于什么类别：
+- MBTI性格（16种类型）
+- PDP性格（老虎、孔雀、无尾熊、猫头鹰、变色龙），以主性格+辅助性格分，比如老虎+孔雀
+- DISC性格（力量D、活跃I、和平S、完美C），以主性格+辅助性格分
+- 盖洛普的前三大优势
+
+要求：
+1、用每本书的知识互相验证
+2、描述详细清晰，用全力深入分析，不要模棱两可
+3、直接给是什么性格的答案，不要展示分析的过程
+4、用中文分析`
+
 export default function AdminSettingsPage() {
-  const [apiKey, setApiKey] = useState("")
-  const [appId, setAppId] = useState("")
-  const [clientId, setClientId] = useState("")
+  const [groqApiKey, setGroqApiKey] = useState("")
+  const [geminiApiKey, setGeminiApiKey] = useState("")
   const [isSaved, setIsSaved] = useState(false)
-  const [promptCopied, setPromptCopied] = useState(false)
+  const [promptSaved, setPromptSaved] = useState(false)
   const [adminUsername, setAdminUsername] = useState("admin")
-  const [adminPassword, setAdminPassword] = useState("123456")
+  const [adminPassword, setAdminPassword] = useState("k123456")
   const [showPassword, setShowPassword] = useState(false)
   const [credentialsSaved, setCredentialsSaved] = useState(false)
+  const [aiPrompt, setAiPrompt] = useState(DEFAULT_AI_PROMPT)
 
   // 加载已保存的设置
   useEffect(() => {
-    const savedApiKey = localStorage.getItem("cozeApiKey") || ""
-    const savedAppId = localStorage.getItem("cozeAppId") || ""
-    const savedClientId = localStorage.getItem("cozeClientId") || ""
+    const savedGroqKey = localStorage.getItem("groqApiKey") || ""
+    const savedGeminiKey = localStorage.getItem("geminiApiKey") || ""
     const savedUsername = localStorage.getItem("adminUsername") || "admin"
-    const savedPassword = localStorage.getItem("adminPassword") || "123456"
+    const savedPassword = localStorage.getItem("adminPassword") || "k123456"
+    const savedPrompt = localStorage.getItem("aiFacePrompt") || DEFAULT_AI_PROMPT
 
-    setApiKey(savedApiKey)
-    setAppId(savedAppId)
-    setClientId(savedClientId)
+    setGroqApiKey(savedGroqKey)
+    setGeminiApiKey(savedGeminiKey)
     setAdminUsername(savedUsername)
     setAdminPassword(savedPassword)
+    setAiPrompt(savedPrompt)
   }, [])
-
-  // AI分析提示词
-  const cozePrompt = `请你扮演一位专业的人才测评师，通过分析用户上传的三张不同角度（正面、左侧45度、右侧45度）的面部照片，结合《冰鉴》、《相术》等古代相面术以及现代心理学、行为科学等理论，对用户进行全面的性格分析。
-
-分析内容应包括：
-1. MBTI性格类型判断及详细解释
-2. PDP行为偏好分析（老虎、孔雀、无尾熊、猫头鹰、变色龙）
-3. DISC沟通风格评估
-4. 面相特点与性格特质的关联分析
-5. 职业倾向与优势领域建议
-6. 人际关系与团队协作风格分析
-
-请确保分析结果专业、客观、全面，并以易于理解的方式呈现。避免使用过于专业的术语，注重实用性建议。分析应基于照片中可观察到的面部特征，如面型、眼睛、鼻子、嘴巴、下巴等，结合各种理论进行综合判断。
-
-最终输出格式应包含以下部分：
-- 总体性格概述（200字左右）
-- MBTI类型（包括四维度详解）
-- PDP主导型与辅助型分析
-- DISC沟通风格分析
-- 优势能力与潜力领域
-- 职业发展建议
-- 人际关系与团队协作建议
-
-请以专业、温和的语气进行分析，避免过度批判或过度赞美，保持客观中立的立场。`
 
   // 保存API设置
   const saveSettings = () => {
-    localStorage.setItem("cozeApiKey", apiKey)
-    localStorage.setItem("cozeAppId", appId)
-    localStorage.setItem("cozeClientId", clientId)
+    localStorage.setItem("groqApiKey", groqApiKey)
+    localStorage.setItem("geminiApiKey", geminiApiKey)
     setIsSaved(true)
     setTimeout(() => setIsSaved(false), 2000)
+  }
+
+  // 保存AI提示词
+  const savePrompt = () => {
+    localStorage.setItem("aiFacePrompt", aiPrompt)
+    setPromptSaved(true)
+    setTimeout(() => setPromptSaved(false), 2000)
+  }
+
+  // 重置提示词为默认
+  const resetPrompt = () => {
+    setAiPrompt(DEFAULT_AI_PROMPT)
+    localStorage.setItem("aiFacePrompt", DEFAULT_AI_PROMPT)
   }
 
   // 保存管理员凭据
@@ -77,32 +80,74 @@ export default function AdminSettingsPage() {
     setTimeout(() => setCredentialsSaved(false), 2000)
   }
 
-  // 复制提示词
-  const copyPrompt = () => {
-    navigator.clipboard.writeText(cozePrompt)
-    setPromptCopied(true)
-    setTimeout(() => setPromptCopied(false), 2000)
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">系统设置</h1>
-        <p className="text-gray-500 mt-1">配置API密钥、管理员账号和AI提示词</p>
+        <p className="text-gray-500 mt-1">配置AI服务、提示词和管理员账号</p>
       </div>
 
-      <Tabs defaultValue="settings" className="w-full">
+      <Tabs defaultValue="ai-prompt" className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-6">
-          <TabsTrigger value="settings">API设置</TabsTrigger>
-          <TabsTrigger value="prompt">AI提示词</TabsTrigger>
+          <TabsTrigger value="ai-prompt">AI提示词</TabsTrigger>
+          <TabsTrigger value="api-settings">AI服务配置</TabsTrigger>
           <TabsTrigger value="account">账号设置</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="settings">
+        {/* AI提示词管理 */}
+        <TabsContent value="ai-prompt">
           <Card>
             <CardHeader>
-              <CardTitle>扣子(Coze) API设置</CardTitle>
-              <CardDescription>配置与扣子(Coze.cn)的连接信息，用于AI照片分析功能</CardDescription>
+              <CardTitle>AI人脸分析提示词</CardTitle>
+              <CardDescription>
+                用于AI人脸性格分析的核心提示词，基于《冰鉴》《周易》等面相学理论。
+                修改后将直接影响AI分析结果。
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {promptSaved && (
+                <Alert className="bg-green-50 border-green-200 mb-4">
+                  <AlertDescription className="text-green-700">提示词已保存</AlertDescription>
+                </Alert>
+              )}
+
+              <Textarea 
+                className="min-h-[400px] font-mono text-sm leading-relaxed" 
+                value={aiPrompt} 
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="输入AI分析提示词..."
+              />
+              
+              <div className="flex items-center gap-3">
+                <Button onClick={savePrompt} className="flex items-center">
+                  {promptSaved ? <Check className="h-4 w-4 mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                  {promptSaved ? "已保存" : "保存提示词"}
+                </Button>
+                <Button variant="outline" onClick={resetPrompt} className="flex items-center">
+                  <RotateCw className="h-4 w-4 mr-2" />
+                  恢复默认
+                </Button>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p className="text-sm text-blue-700 font-medium mb-1">提示词说明</p>
+                <ul className="text-xs text-blue-600 space-y-1">
+                  <li>• 提示词基于曾国藩《冰鉴》骨形分析 + 《周易》面相学</li>
+                  <li>• 分析维度：MBTI / PDP / DISC / 盖洛普优势</li>
+                  <li>• 面相五官：额头、眼睛、耳朵、鼻子、嘴巴、下巴、骨形</li>
+                  <li>• 修改后点击"保存提示词"即刻生效</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* AI服务配置 */}
+        <TabsContent value="api-settings">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI服务配置</CardTitle>
+              <CardDescription>配置AI分析引擎的API密钥</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {isSaved && (
@@ -112,37 +157,27 @@ export default function AdminSettingsPage() {
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="appId">应用ID (App ID)</Label>
+                <Label htmlFor="groqKey">Groq API Key（当前使用）</Label>
                 <Input
-                  id="appId"
-                  value={appId}
-                  onChange={(e) => setAppId(e.target.value)}
-                  placeholder="输入扣子(Coze)的应用ID"
-                />
-                <p className="text-xs text-gray-500">例如: 1151859692941</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="clientId">客户端ID (Client ID)</Label>
-                <Input
-                  id="clientId"
-                  value={clientId}
-                  onChange={(e) => setClientId(e.target.value)}
-                  placeholder="输入扣子(Coze)的客户端ID"
-                />
-                <p className="text-xs text-gray-500">例如: 535227304978582177762740044195.app.coze</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="apiKey">API密钥 (API Key)</Label>
-                <Input
-                  id="apiKey"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder="输入扣子(Coze)的API密钥"
+                  id="groqKey"
+                  value={groqApiKey}
+                  onChange={(e) => setGroqApiKey(e.target.value)}
+                  placeholder="输入Groq API密钥"
                   type="password"
                 />
-                <p className="text-xs text-gray-500">在扣子平台的"授权"页面获取API密钥</p>
+                <p className="text-xs text-gray-500">免费，速度快。在 console.groq.com 获取</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="geminiKey">Gemini API Key（推荐升级）</Label>
+                <Input
+                  id="geminiKey"
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="输入Gemini API密钥"
+                  type="password"
+                />
+                <p className="text-xs text-gray-500">支持图像分析，效果更好。在 aistudio.google.com 获取</p>
               </div>
 
               <Button onClick={saveSettings} className="flex items-center">
@@ -153,26 +188,7 @@ export default function AdminSettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="prompt">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI分析提示词</CardTitle>
-              <CardDescription>用于扣子(Coze)机器人的提示词，可复制到Coze平台配置</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea 
-                className="min-h-[400px] font-mono text-sm" 
-                value={cozePrompt} 
-                readOnly 
-              />
-              <Button onClick={copyPrompt} className="flex items-center">
-                {promptCopied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                {promptCopied ? "已复制" : "复制提示词"}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
+        {/* 账号设置 */}
         <TabsContent value="account">
           <Card>
             <CardHeader>
@@ -215,7 +231,7 @@ export default function AdminSettingsPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                <p className="text-xs text-gray-500">默认用户名: admin，默认密码: 123456</p>
+                <p className="text-xs text-gray-500">默认用户名: admin，默认密码: k123456</p>
               </div>
               
               <Button onClick={saveCredentials} className="flex items-center">
