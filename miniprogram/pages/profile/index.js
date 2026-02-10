@@ -1,211 +1,89 @@
-// pages/profile/index.js
+// pages/profile/index.js - 我的页面
 const app = getApp()
-const payment = require('../../utils/payment')
 
 Page({
   data: {
+    hasLogin: false,
     userInfo: null,
-    isVIP: false,
-    vipTypeText: '',
-    vipExpireText: '',
+    balance: 0,
     testCount: 0,
-    mbtiType: '',
     hasResults: false,
-    mbtiResult: null,
-    discResult: null,
-    pdpResult: null,
-    aiResult: null
+    mbtiType: '',
+    discType: '',
+    pdpType: ''
   },
 
-  onLoad() {
-    this.loadData()
-  },
-
-  onShow() {
-    this.loadData()
-  },
+  onLoad() { this.loadData() },
+  onShow() { this.loadData() },
 
   loadData() {
-    // 用户信息
-    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo')
-    
-    // VIP信息
-    const benefits = payment.getUserBenefits()
-    let vipTypeText = ''
-    let vipExpireText = ''
-    
-    if (benefits.isVIP && benefits.vipInfo) {
-      const typeNames = {
-        month: '月度VIP',
-        quarter: '季度VIP',
-        year: '年度VIP',
-        lifetime: '终身VIP'
-      }
-      vipTypeText = typeNames[benefits.vipInfo.vipType] || 'VIP会员'
-      
-      if (benefits.vipInfo.vipType === 'lifetime') {
-        vipExpireText = '永久有效'
-      } else {
-        const expireDate = new Date(benefits.vipInfo.expireDate)
-        vipExpireText = `${expireDate.getFullYear()}-${String(expireDate.getMonth() + 1).padStart(2, '0')}-${String(expireDate.getDate()).padStart(2, '0')} 到期`
-      }
-    }
-    
-    // 测试结果
+    const userInfo = wx.getStorageSync('userInfo')
+    const token = wx.getStorageSync('token')
     const mbtiResult = wx.getStorageSync('mbtiResult')
     const discResult = wx.getStorageSync('discResult')
     const pdpResult = wx.getStorageSync('pdpResult')
-    const aiResult = wx.getStorageSync('aiResult')
-    
+
+    let testCount = 0
+    if (mbtiResult) testCount++
+    if (discResult) testCount++
+    if (pdpResult) testCount++
+
     this.setData({
-      userInfo,
-      isVIP: benefits.isVIP,
-      vipTypeText,
-      vipExpireText,
-      testCount: benefits.testCount,
-      mbtiType: mbtiResult ? mbtiResult.mbtiType : '',
-      hasResults: !!(mbtiResult || discResult || pdpResult || aiResult),
-      mbtiResult,
-      discResult,
-      pdpResult,
-      aiResult
+      hasLogin: !!token || !!userInfo,
+      userInfo: userInfo || null,
+      testCount,
+      hasResults: testCount > 0,
+      mbtiType: mbtiResult?.type || mbtiResult?.mbtiType || '',
+      discType: discResult?.type || discResult?.dominantType || '',
+      pdpType: pdpResult?.type || pdpResult?.dominantType || ''
     })
   },
 
-  // 获取用户信息
-  getUserInfo() {
-    if (this.data.userInfo) return
-    
-    wx.getUserProfile({
-      desc: '用于展示头像和昵称',
-      success: (res) => {
-        app.globalData.userInfo = res.userInfo
-        wx.setStorageSync('userInfo', res.userInfo)
-        this.setData({ userInfo: res.userInfo })
+  doLogin() {
+    app.getUserInfo((info) => {
+      if (info) {
+        this.setData({ hasLogin: true, userInfo: info })
       }
     })
   },
 
-  // 跳转到首页
-  goToIndex() {
-    wx.redirectTo({
-      url: '/pages/index/index'
-    })
-  },
-
-  // 跳转到历史记录
-  goToHistory() {
-    wx.navigateTo({
-      url: '/pages/history/index'
-    })
-  },
-
-  // 跳转到购买页面
-  goToPurchase() {
-    wx.navigateTo({
-      url: '/pages/purchase/index'
-    })
-  },
-
-  // 跳转到设置
+  goToIndex() { wx.redirectTo({ url: '/pages/index/index' }) },
+  goToCamera() { wx.navigateTo({ url: '/pages/ai-test/index' }) },
+  goToHistory() { wx.navigateTo({ url: '/pages/history/index' }) },
+  goToPurchase() { wx.navigateTo({ url: '/pages/purchase/index' }) },
   goToSettings() {
-    wx.showToast({
-      title: '设置功能开发中',
-      icon: 'none'
-    })
+    wx.showToast({ title: '开发中', icon: 'none' })
   },
-
-  // 分享
+  goToFeedback() {
+    wx.showModal({ title: '意见反馈', content: '请添加微信: 28533368', showCancel: false })
+  },
+  goToAbout() {
+    wx.showModal({ title: '关于我们', content: '神仙团队AI性格测试\n基于MBTI/PDP/DISC/盖洛普\nAI人脸性格分析系统', showCancel: false })
+  },
   shareApp() {
     // 触发分享
   },
+  viewMBTI() { wx.navigateTo({ url: '/pages/result/mbti' }) },
+  viewDISC() { wx.navigateTo({ url: '/pages/result/disc' }) },
+  viewPDP() { wx.navigateTo({ url: '/pages/result/pdp' }) },
 
-  // 意见反馈
-  goToFeedback() {
+  logout() {
     wx.showModal({
-      title: '意见反馈',
-      content: '请联系客服微信：28533368',
-      showCancel: false,
-      confirmText: '复制微信',
+      title: '确认退出',
+      content: '退出后测试记录仍会保留',
       success: (res) => {
         if (res.confirm) {
-          wx.setClipboardData({
-            data: '28533368',
-            success: () => {
-              wx.showToast({
-                title: '已复制微信号',
-                icon: 'success'
-              })
-            }
-          })
+          wx.removeStorageSync('token')
+          wx.removeStorageSync('userInfo')
+          this.setData({ hasLogin: false, userInfo: null })
         }
       }
-    })
-  },
-
-  // 关于我们
-  goToAbout() {
-    wx.showModal({
-      title: '神仙团队AI性格测试',
-      content: '专业的MBTI、DISC、PDP性格测试平台，助您深度认识自己。\n\n联系我们：28533368',
-      showCancel: false
-    })
-  },
-
-  // 清除缓存
-  clearData() {
-    wx.showModal({
-      title: '清除缓存',
-      content: '将清除所有测试记录，是否继续？',
-      confirmColor: '#F43F5E',
-      success: (res) => {
-        if (res.confirm) {
-          wx.clearStorageSync()
-          app.globalData.mbtiResult = null
-          app.globalData.discResult = null
-          app.globalData.pdpResult = null
-          app.globalData.aiResult = null
-          this.loadData()
-          wx.showToast({
-            title: '已清除',
-            icon: 'success'
-          })
-        }
-      }
-    })
-  },
-
-  // 查看MBTI结果
-  viewMBTI() {
-    wx.navigateTo({
-      url: '/pages/result/mbti'
-    })
-  },
-
-  // 查看DISC结果
-  viewDISC() {
-    wx.navigateTo({
-      url: '/pages/result/disc'
-    })
-  },
-
-  // 查看PDP结果
-  viewPDP() {
-    wx.navigateTo({
-      url: '/pages/result/pdp'
-    })
-  },
-
-  // 查看AI结果
-  viewAI() {
-    wx.navigateTo({
-      url: '/pages/ai-test/result'
     })
   },
 
   onShareAppMessage() {
     return {
-      title: '神仙团队AI性格测试 - 专业MBTI/DISC/PDP测试',
+      title: '神仙团队AI性格测试 - 发现你的MBTI类型',
       path: '/pages/index/index'
     }
   }

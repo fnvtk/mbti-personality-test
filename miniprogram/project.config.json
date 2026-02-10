@@ -2,7 +2,7 @@
     "miniprogramRoot": "",
     "description": "MBTI/DISC/PDP性格测试系统 - 个人版与企业版",
     "setting": {
-        "urlCheck": true,
+        "urlCheck": false,
         "es6": true,
         "enhance": true,
         "postcss": true,

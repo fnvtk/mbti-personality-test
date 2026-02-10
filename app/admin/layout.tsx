@@ -5,8 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, Users, Settings, LogOut, DollarSign, 
-  FileText, Home, ChevronRight, Menu, X, Shield,
-  Building2, BarChart3, Wallet, Share2, Database
+  Home, ChevronRight, Menu, X, Shield, Database
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -29,34 +28,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     router.push("/admin/login")
   }
 
-  // 统一超管后台导航
-  const navSections = [
-    {
-      title: "概览",
-      items: [
-        { href: "/admin/dashboard", icon: LayoutDashboard, label: "数据仪表板" },
-      ]
-    },
-    {
-      title: "用户与企业",
-      items: [
-        { href: "/admin/users", icon: Users, label: "用户管理" },
-        { href: "/admin/enterprise", icon: Building2, label: "企业管理" },
-      ]
-    },
-    {
-      title: "财务",
-      items: [
-        { href: "/admin/pricing", icon: DollarSign, label: "定价策略" },
-      ]
-    },
-    {
-      title: "系统",
-      items: [
-        { href: "/admin/database", icon: Database, label: "数据库管理" },
-        { href: "/admin", icon: Settings, label: "系统设置" },
-      ]
-    },
+  // 普通管理后台导航（用户+内容管理）
+  const navItems = [
+    { href: "/admin/dashboard", icon: LayoutDashboard, label: "数据概览" },
+    { href: "/admin/users", icon: Users, label: "用户管理" },
+    { href: "/admin/pricing", icon: DollarSign, label: "定价管理" },
+    { href: "/admin/database", icon: Database, label: "数据库" },
+    { href: "/admin", icon: Settings, label: "系统设置" },
   ]
 
   if (pathname === "/admin/login") return <>{children}</>
@@ -76,13 +54,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               {sidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-rose-500 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center">
                 <Shield className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-sm hidden sm:block">超级管理后台</span>
+              <span className="font-bold text-sm hidden sm:block">管理后台</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => router.push("/superadmin")} className="text-purple-600 text-xs">
+              超管端
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="text-gray-500 text-xs">
               <Home className="h-4 w-4 mr-1" />前台
             </Button>
@@ -94,30 +75,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       <aside className={cn(
-        "fixed left-0 top-14 bottom-0 w-52 bg-white border-r transition-transform duration-300 z-40 overflow-y-auto",
+        "fixed left-0 top-14 bottom-0 w-52 bg-white border-r transition-transform z-40 overflow-y-auto",
         "lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
-        <nav className="p-3 space-y-4">
-          {navSections.map((section) => (
-            <div key={section.title}>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider px-3 mb-1">{section.title}</p>
-              {section.items.map((item) => (
-                <Button
-                  key={item.href}
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    "w-full justify-start gap-2 h-9 text-sm font-normal",
-                    pathname === item.href ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-600"
-                  )}
-                  onClick={() => { router.push(item.href); setSidebarOpen(false) }}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              ))}
-            </div>
+        <nav className="p-3 space-y-1">
+          {navItems.map((item) => (
+            <Button
+              key={item.href}
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "w-full justify-start gap-2 h-9 text-sm",
+                pathname === item.href ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-600"
+              )}
+              onClick={() => { router.push(item.href); setSidebarOpen(false) }}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+            </Button>
           ))}
         </nav>
       </aside>

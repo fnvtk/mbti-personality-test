@@ -1,125 +1,125 @@
-<!--pages/profile/index.wxml - 个人中心（匹配H5风格）-->
+<!--pages/profile/index.wxml - 我的页面（匹配5-19-ai H5）-->
 <view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">我的</text>
+  </view>
+
   <!-- 用户信息卡片 -->
-  <view class="user-card">
-    <view class="user-bg"></view>
-    <view class="user-content">
-      <view class="avatar-section" bindtap="getUserInfo">
-        <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
-        <view class="vip-badge" wx:if="{{isVIP}}">VIP</view>
+  <view class="user-card" wx:if="{{hasLogin}}">
+    <image class="avatar" src="{{userInfo.avatarUrl || '/images/default-avatar.png'}}" mode="aspectFill"></image>
+    <view class="user-info">
+      <text class="nickname">{{userInfo.nickName || '用户'}}</text>
+      <view class="balance-tag" wx:if="{{balance > 0}}">
+        <text class="balance-text">¥{{balance}}</text>
       </view>
-      <view class="user-info">
-        <text class="nickname">{{userInfo.nickName || '点击登录'}}</text>
-        <view class="user-tags">
-          <view class="user-tag vip" wx:if="{{isVIP}}">
-            <text>👑 {{vipTypeText}}</text>
-          </view>
-          <view class="user-tag" wx:if="{{mbtiType}}">
-            <text>{{mbtiType}}</text>
-          </view>
-          <view class="user-tag" wx:if="{{!isVIP}}">
-            <text>剩余{{testCount}}次</text>
-          </view>
-        </view>
-      </view>
-      <view class="edit-btn" bindtap="goToSettings">
-        <text class="edit-icon">⚙️</text>
+    </view>
+    <view class="user-actions">
+      <view class="action-btn" bindtap="goToSettings">
+        <text>编辑</text>
       </view>
     </view>
   </view>
 
-  <!-- VIP开通入口（非VIP显示） -->
-  <view class="vip-banner" wx:if="{{!isVIP}}" bindtap="goToPurchase">
-    <view class="vip-banner-left">
-      <text class="vip-banner-icon">👑</text>
-      <view class="vip-banner-text">
-        <text class="vip-banner-title">开通VIP会员</text>
-        <text class="vip-banner-desc">无限测试 · 完整报告 · 专属特权</text>
-      </view>
+  <!-- 未登录状态 -->
+  <view class="user-card login-card" wx:else>
+    <view class="login-avatar">👤</view>
+    <view class="user-info">
+      <text class="nickname">未登录</text>
+      <text class="login-tip">登录后可查看测试记录</text>
     </view>
-    <view class="vip-banner-btn">
-      <text>立即开通</text>
+    <view class="login-btn" bindtap="doLogin">
+      <text>登录</text>
     </view>
   </view>
 
-  <!-- VIP续费入口（VIP显示） -->
-  <view class="vip-status" wx:if="{{isVIP}}" bindtap="goToPurchase">
-    <view class="vip-status-icon">👑</view>
-    <view class="vip-status-info">
-      <text class="vip-status-title">{{vipTypeText}}</text>
-      <text class="vip-status-expire">{{vipExpireText}}</text>
-    </view>
-    <view class="vip-status-action">
-      <text>续费</text>
-    </view>
-  </view>
-
-  <!-- 功能菜单 -->
+  <!-- 功能入口 -->
   <view class="menu-section">
-    <view class="menu-group">
-      <view class="menu-item" bindtap="goToHistory">
-        <text class="menu-icon">📋</text>
-        <text class="menu-text">测试记录</text>
-        <text class="menu-arrow">›</text>
+    <view class="menu-item" bindtap="goToHistory">
+      <view class="menu-icon">📋</view>
+      <view class="menu-content">
+        <text class="menu-label">测试历史</text>
+        <text class="menu-desc">{{testCount}}条记录</text>
       </view>
-      <view class="menu-item" bindtap="goToPurchase">
-        <text class="menu-icon">💎</text>
-        <text class="menu-text">购买套餐</text>
-        <text class="menu-arrow">›</text>
-      </view>
-      <view class="menu-item" bindtap="shareApp">
-        <text class="menu-icon">📤</text>
-        <text class="menu-text">分享给朋友</text>
-        <text class="menu-arrow">›</text>
-      </view>
+      <text class="menu-arrow">›</text>
     </view>
 
-    <view class="menu-group">
-      <view class="menu-item" bindtap="goToFeedback">
-        <text class="menu-icon">💬</text>
-        <text class="menu-text">意见反馈</text>
-        <text class="menu-arrow">›</text>
+    <view class="menu-item" bindtap="goToPurchase">
+      <view class="menu-icon">💎</view>
+      <view class="menu-content">
+        <text class="menu-label">深度服务</text>
+        <text class="menu-desc">个人/团队深度分析</text>
       </view>
-      <view class="menu-item" bindtap="goToAbout">
-        <text class="menu-icon">ℹ️</text>
-        <text class="menu-text">关于我们</text>
-        <text class="menu-arrow">›</text>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="shareApp">
+      <view class="menu-icon">🔗</view>
+      <view class="menu-content">
+        <text class="menu-label">分享赚佣金</text>
+        <text class="menu-desc">好友付费你赚30%</text>
       </view>
-      <view class="menu-item" bindtap="clearData">
-        <text class="menu-icon">🗑️</text>
-        <text class="menu-text">清除缓存</text>
-        <text class="menu-arrow">›</text>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="goToFeedback">
+      <view class="menu-icon">💬</view>
+      <view class="menu-content">
+        <text class="menu-label">意见反馈</text>
+        <text class="menu-desc">微信: 28533368</text>
       </view>
+      <text class="menu-arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="goToAbout">
+      <view class="menu-icon">ℹ️</view>
+      <view class="menu-content">
+        <text class="menu-label">关于我们</text>
+        <text class="menu-desc">神仙团队AI性格测试</text>
+      </view>
+      <text class="menu-arrow">›</text>
     </view>
   </view>
 
-  <!-- 测试结果快捷入口 -->
+  <!-- 最近测试结果 -->
   <view class="results-section" wx:if="{{hasResults}}">
-    <text class="section-title">我的测试结果</text>
-    <view class="results-grid">
-      <view class="result-card" wx:if="{{mbtiResult}}" bindtap="viewMBTI">
-        <text class="result-type-big">{{mbtiResult.mbtiType}}</text>
+    <text class="section-title">最近测试</text>
+    
+    <view class="result-item" wx:if="{{mbtiType}}" bindtap="viewMBTI">
+      <text class="result-icon">🧠</text>
+      <view class="result-info">
         <text class="result-label">MBTI</text>
+        <text class="result-value">{{mbtiType}}</text>
       </view>
-      <view class="result-card" wx:if="{{discResult}}" bindtap="viewDISC">
-        <text class="result-type-big">{{discResult.dominantType}}</text>
+      <text class="result-arrow">›</text>
+    </view>
+
+    <view class="result-item" wx:if="{{discType}}" bindtap="viewDISC">
+      <text class="result-icon">💬</text>
+      <view class="result-info">
         <text class="result-label">DISC</text>
+        <text class="result-value">{{discType}}</text>
       </view>
-      <view class="result-card" wx:if="{{pdpResult}}" bindtap="viewPDP">
-        <text class="result-emoji-big">{{pdpResult.description.emoji}}</text>
+      <text class="result-arrow">›</text>
+    </view>
+
+    <view class="result-item" wx:if="{{pdpType}}" bindtap="viewPDP">
+      <text class="result-icon">🐯</text>
+      <view class="result-info">
         <text class="result-label">PDP</text>
+        <text class="result-value">{{pdpType}}</text>
       </view>
-      <view class="result-card" wx:if="{{aiResult}}" bindtap="viewAI">
-        <text class="result-type-big">AI</text>
-        <text class="result-label">人脸分析</text>
-      </view>
+      <text class="result-arrow">›</text>
     </view>
   </view>
 
-  <!-- 底部版权 -->
+  <!-- 退出登录 -->
+  <view class="logout-btn" wx:if="{{hasLogin}}" bindtap="logout">
+    <text class="logout-text">退出登录</text>
+  </view>
+
   <view class="footer">
-    <text class="footer-text">神仙团队AI性格测试</text>
-    <text class="footer-version">v1.0.2</text>
+    <text class="footer-text">神仙团队AI性格测试 v1.3.0</text>
   </view>
 </view>
 
@@ -129,12 +129,14 @@
     <text class="tab-icon">🏠</text>
     <text class="tab-text">首页</text>
   </view>
-  <view class="tab-item" bindtap="goToHistory">
-    <text class="tab-icon">📋</text>
-    <text class="tab-text">记录</text>
+  <view class="tab-item tab-center" bindtap="goToCamera">
+    <view class="tab-center-btn">
+      <text class="tab-center-icon">📸</text>
+    </view>
+    <text class="tab-text">查看报告</text>
   </view>
   <view class="tab-item active">
     <text class="tab-icon">👤</text>
-    <text class="tab-text">我的</text>
+    <text class="tab-text active-text">我的</text>
   </view>
 </view>

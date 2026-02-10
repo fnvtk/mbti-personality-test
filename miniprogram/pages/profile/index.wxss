@@ -1,288 +1,200 @@
-/* pages/profile/index.wxss - 个人中心样式 */
+/* pages/profile/index.wxss - 我的页面样式（匹配5-19-ai） */
 .container {
   min-height: 100vh;
-  background: #F3F4F6;
-  padding-bottom: 180rpx;
+  background: #F5F5F5;
+  padding: 0 0 160rpx;
+}
+
+.header {
+  background: #fff;
+  padding: 48rpx 32rpx 24rpx;
+  text-align: center;
+}
+.header-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
 }
 
 /* 用户卡片 */
 .user-card {
-  position: relative;
+  background: #fff;
   margin: 24rpx;
-  border-radius: 32rpx;
-  overflow: hidden;
-}
-
-.user-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
-}
-
-.user-content {
-  position: relative;
+  border-radius: 24rpx;
+  padding: 32rpx;
   display: flex;
   align-items: center;
-  padding: 40rpx 32rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
 }
-
-.avatar-section {
-  position: relative;
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: #E5E7EB;
   margin-right: 24rpx;
 }
-
-.avatar {
-  width: 120rpx;
-  height: 120rpx;
+.login-avatar {
+  width: 96rpx;
+  height: 96rpx;
   border-radius: 50%;
-  border: 4rpx solid rgba(255, 255, 255, 0.5);
-}
-
-.vip-badge {
-  position: absolute;
-  bottom: -4rpx;
-  right: -4rpx;
-  padding: 4rpx 12rpx;
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  border-radius: 12rpx;
-  font-size: 18rpx;
-  font-weight: 700;
-  color: #92400E;
-}
-
-.user-info {
-  flex: 1;
-}
-
-.nickname {
-  display: block;
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #FFFFFF;
-  margin-bottom: 12rpx;
-}
-
-.user-tags {
-  display: flex;
-  gap: 12rpx;
-  flex-wrap: wrap;
-}
-
-.user-tag {
-  padding: 6rpx 16rpx;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 12rpx;
-  font-size: 22rpx;
-  color: #FFFFFF;
-}
-
-.user-tag.vip {
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  color: #92400E;
-}
-
-.edit-btn {
-  width: 64rpx;
-  height: 64rpx;
+  background: #F3F4F6;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 48rpx;
+  margin-right: 24rpx;
 }
-
-.edit-icon {
-  font-size: 40rpx;
-}
-
-/* VIP Banner */
-.vip-banner {
-  display: flex;
-  align-items: center;
-  margin: 0 24rpx 24rpx;
-  padding: 24rpx;
-  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  border-radius: 24rpx;
-}
-
-.vip-banner-left {
-  display: flex;
-  align-items: center;
+.user-info {
   flex: 1;
 }
-
-.vip-banner-icon {
-  font-size: 48rpx;
-  margin-right: 16rpx;
-}
-
-.vip-banner-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.vip-banner-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #92400E;
-}
-
-.vip-banner-desc {
-  font-size: 22rpx;
-  color: #B45309;
-}
-
-.vip-banner-btn {
-  padding: 12rpx 24rpx;
-  background: #92400E;
-  border-radius: 16rpx;
-  font-size: 26rpx;
-  color: #FFFFFF;
-  font-weight: 600;
-}
-
-/* VIP Status */
-.vip-status {
-  display: flex;
-  align-items: center;
-  margin: 0 24rpx 24rpx;
-  padding: 24rpx;
-  background: #FFFFFF;
-  border-radius: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
-}
-
-.vip-status-icon {
-  font-size: 48rpx;
-  margin-right: 16rpx;
-}
-
-.vip-status-info {
-  flex: 1;
-}
-
-.vip-status-title {
+.nickname {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
   display: block;
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1F2937;
 }
-
-.vip-status-expire {
-  display: block;
+.login-tip {
   font-size: 24rpx;
-  color: #6B7280;
+  color: #999;
+  display: block;
+  margin-top: 4rpx;
 }
-
-.vip-status-action {
+.balance-tag {
+  display: inline-block;
+  background: #F3E8FF;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  margin-top: 8rpx;
+}
+.balance-text {
+  font-size: 24rpx;
+  color: #7C3AED;
+  font-weight: bold;
+}
+.user-actions {
+  display: flex;
+  gap: 12rpx;
+}
+.action-btn {
   padding: 12rpx 24rpx;
-  background: linear-gradient(135deg, #F43F5E 0%, #FB923C 100%);
   border-radius: 16rpx;
-  font-size: 26rpx;
-  color: #FFFFFF;
-  font-weight: 600;
+  background: #F3F4F6;
+  font-size: 24rpx;
+  color: #666;
+}
+.login-btn {
+  padding: 12rpx 32rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+  color: #fff;
+  font-size: 28rpx;
+  font-weight: bold;
 }
 
-/* 菜单 */
+/* 功能菜单 */
 .menu-section {
-  padding: 0 24rpx;
-}
-
-.menu-group {
-  background: #FFFFFF;
+  background: #fff;
+  margin: 24rpx;
   border-radius: 24rpx;
-  margin-bottom: 24rpx;
   overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.05);
 }
-
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 28rpx 24rpx;
+  padding: 28rpx 32rpx;
   border-bottom: 1rpx solid #F3F4F6;
 }
-
 .menu-item:last-child {
   border-bottom: none;
 }
-
 .menu-icon {
   font-size: 36rpx;
+  width: 48rpx;
+  text-align: center;
   margin-right: 20rpx;
 }
-
-.menu-text {
+.menu-content {
   flex: 1;
-  font-size: 30rpx;
-  color: #1F2937;
 }
-
+.menu-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #333;
+  display: block;
+}
+.menu-desc {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+  margin-top: 2rpx;
+}
 .menu-arrow {
   font-size: 32rpx;
-  color: #9CA3AF;
+  color: #CCC;
 }
 
 /* 测试结果 */
 .results-section {
-  padding: 0 24rpx;
-  margin-bottom: 32rpx;
+  margin: 24rpx;
 }
-
 .section-title {
-  display: block;
   font-size: 28rpx;
-  font-weight: 600;
-  color: #6B7280;
+  font-weight: bold;
+  color: #333;
+  display: block;
   margin-bottom: 16rpx;
   padding-left: 8rpx;
 }
-
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-}
-
-.result-card {
+.result-item {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 24rpx 16rpx;
-  background: #FFFFFF;
-  border-radius: 20rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
 }
-
-.result-type-big {
+.result-icon {
   font-size: 36rpx;
-  font-weight: 700;
-  color: #F43F5E;
-  margin-bottom: 8rpx;
+  margin-right: 16rpx;
 }
-
-.result-emoji-big {
-  font-size: 40rpx;
-  margin-bottom: 8rpx;
+.result-info {
+  flex: 1;
 }
-
 .result-label {
-  font-size: 22rpx;
-  color: #9CA3AF;
+  font-size: 24rpx;
+  color: #999;
+  display: block;
+}
+.result-value {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #7C3AED;
+  display: block;
+}
+.result-arrow {
+  font-size: 32rpx;
+  color: #CCC;
 }
 
-/* 底部 */
+/* 退出登录 */
+.logout-btn {
+  margin: 32rpx 24rpx;
+  text-align: center;
+}
+.logout-text {
+  font-size: 28rpx;
+  color: #EF4444;
+}
+
 .footer {
   text-align: center;
-  padding: 48rpx 0;
+  padding: 24rpx;
 }
-
 .footer-text {
-  display: block;
-  font-size: 24rpx;
-  color: #9CA3AF;
-  margin-bottom: 8rpx;
-}
-
-.footer-version {
   font-size: 22rpx;
-  color: #D1D5DB;
+  color: #CCC;
 }
 
 /* 底部导航 */
@@ -292,37 +204,46 @@
   left: 0;
   right: 0;
   height: 120rpx;
-  padding-bottom: constant(safe-area-inset-bottom);
-  padding-bottom: env(safe-area-inset-bottom);
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #fff;
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  border-top: 1rpx solid #F3F4F6;
-  z-index: 999;
+  justify-content: space-around;
+  box-shadow: 0 -2rpx 12rpx rgba(0,0,0,0.06);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 100;
 }
-
 .tab-item {
+  text-align: center;
+  flex: 1;
+}
+.tab-icon {
+  display: block;
+  font-size: 40rpx;
+}
+.tab-text {
+  display: block;
+  font-size: 20rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+.tab-text.active-text {
+  color: #7C3AED;
+}
+.tab-center {
+  position: relative;
+  top: -20rpx;
+}
+.tab-center-btn {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  height: 100%;
+  margin: 0 auto;
+  box-shadow: 0 8rpx 24rpx rgba(124, 58, 237, 0.3);
 }
-
-.tab-icon {
+.tab-center-icon {
   font-size: 44rpx;
-  margin-bottom: 4rpx;
-}
-
-.tab-text {
-  font-size: 22rpx;
-  color: #9CA3AF;
-}
-
-.tab-item.active .tab-text {
-  color: #F43F5E;
 }
