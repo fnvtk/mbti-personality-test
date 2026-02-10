@@ -98,6 +98,8 @@
 | `/api/superadmin/config` | GET/PUT | 系统参数配置 |
 | `/api/superadmin/modules` | GET/PUT | 功能模块开关 |
 | `/api/superadmin/version` | PUT | 切换个人版/企业版显示 |
+| `/api/superadmin/ai-config` | GET/POST | AI 服务商配置管理（8家：OpenAI/Claude/DeepSeek/Kimi/Groq/Coze/Qwen/GLM） |
+| `/api/superadmin/ai-balance` | POST | AI 服务商余额实时查询 + 告警通知 |
 
 ### 存客宝对接接口
 

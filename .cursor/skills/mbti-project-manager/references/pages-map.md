@@ -50,6 +50,7 @@
 | `/admin/enterprise` | 企业管理 | 企业版管理 |
 | `/admin/pricing` | 定价管理 | 套餐/价格设置 |
 | `/superadmin` | 超级管理员 | 最高权限管理 |
+| `/superadmin/ai-config` | AI服务配置 | 8家AI服务商API管理+余额监控+告警 |
 
 ---
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, Users, Settings, LogOut, DollarSign, 
   Home, ChevronRight, Menu, X, Shield, Database,
-  Share2, ShoppingCart
+  Share2, ShoppingCart, FileText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -35,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/users", icon: Users, label: "用户管理" },
     { href: "/admin/orders", icon: ShoppingCart, label: "订单管理" },
     { href: "/admin/distribution", icon: Share2, label: "分销管理" },
+    { href: "/admin/questions", icon: FileText, label: "题库管理" },
     { href: "/admin/pricing", icon: DollarSign, label: "定价管理" },
     { href: "/admin", icon: Settings, label: "系统设置" },
   ]

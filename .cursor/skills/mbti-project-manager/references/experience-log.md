@@ -51,6 +51,32 @@
 
 ---
 
+### 2026-02-10 | 超管 AI 服务商配置管理
+
+**问题**：需要在超级管理后台集中管理多个 AI 服务商（GPT/Claude/DeepSeek/Kimi/Groq/Coze 等）的 API 配置，并支持实时余额查询和告警通知
+
+**解决方案**：
+- 创建 `/api/superadmin/ai-config` API（GET/POST），服务端 JSON 文件存储配置，API Key 脱敏处理
+- 创建 `/api/superadmin/ai-balance` API（POST），支持 OpenAI/DeepSeek/Moonshot 真实余额查询，其他服务商验证 Key 有效性
+- 创建 `/superadmin/ai-config/page.tsx` 管理页面，8 家 AI 服务商卡片式管理
+- 更新 `lib/config.ts` 新增 `getAIProviderConfig()` 和 `getEnabledAIProviders()` 动态读取
+- 更新超管导航布局新增 "AI 服务配置" 入口
+
+**关键步骤**：
+1. 定义 AI 服务商配置数据结构（AIProviderConfig 接口）
+2. 各服务商余额查询 API 适配（OpenAI 用 billing API、DeepSeek 用 /user/balance、Moonshot 用 /users/me/balance）
+3. 前端使用 Card + Switch + Badge 组合，支持展开/收起高级配置
+4. 余额告警通过阈值比较实现，低于阈值时在页面顶部显示 Alert
+5. 配置存储在 `data/ai-providers-config.json`，服务端读写，避免 localStorage 安全风险
+
+**经验**：
+- AI 服务商余额查询 API 各不相同，需要逐一适配；Anthropic/Coze/通义千问/智谱暂无公开余额 API
+- API Key 脱敏显示（前4后4）+ 服务端存储 = 安全性与易用性的平衡
+- 使用文件存储而非数据库，简化部署但限制了并发写入能力（后续可迁移到数据库）
+- Groq 是免费服务商，默认开启，无需余额告警
+
+---
+
 <!-- 模板：复制此块新增条目
 ### YYYY-MM-DD | 标题
 

@@ -1,0 +1,92 @@
+[
+  {
+    "id": "openai",
+    "name": "OpenAI (GPT)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://api.openai.com/v1",
+    "model": "gpt-4o",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true
+  },
+  {
+    "id": "anthropic",
+    "name": "Anthropic (Claude)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://api.anthropic.com/v1",
+    "model": "claude-sonnet-4-20250514",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true,
+    "_hasKey": false
+  },
+  {
+    "id": "deepseek",
+    "name": "DeepSeek",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://api.deepseek.com/v1",
+    "model": "deepseek-chat",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true
+  },
+  {
+    "id": "moonshot",
+    "name": "Moonshot (Kimi)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://api.moonshot.cn/v1",
+    "model": "moonshot-v1-8k",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true
+  },
+  {
+    "id": "groq",
+    "name": "Groq",
+    "enabled": true,
+    "apiKey": "",
+    "apiEndpoint": "https://api.groq.com/openai/v1",
+    "model": "llama3-8b-8192",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 0,
+    "balanceAlertEnabled": false,
+    "notes": "免费额度，无需余额监控"
+  },
+  {
+    "id": "coze",
+    "name": "Coze (扣子)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://api.coze.cn/v1",
+    "model": "",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": false
+  },
+  {
+    "id": "qwen",
+    "name": "通义千问 (Qwen)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "model": "qwen-turbo",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true
+  },
+  {
+    "id": "zhipu",
+    "name": "智谱 (GLM)",
+    "enabled": false,
+    "apiKey": "",
+    "apiEndpoint": "https://open.bigmodel.cn/api/paas/v4",
+    "model": "glm-4-flash",
+    "maxTokens": 4096,
+    "balanceAlertThreshold": 10,
+    "balanceAlertEnabled": true
+  }
+]

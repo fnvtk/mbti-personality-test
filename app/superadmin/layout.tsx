@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { 
   Building2, Settings, LogOut, Database, DollarSign,
-  Home, Menu, X, Shield, Users, BarChart3, Bot
+  Home, Menu, X, Shield, Users, BarChart3, Bot, FileText
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -32,6 +32,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     { href: "/superadmin", icon: BarChart3, label: "概览" },
     { href: "/superadmin/enterprises", icon: Building2, label: "企业管理" },
     { href: "/superadmin/users", icon: Users, label: "用户总览" },
+    { href: "/superadmin/questions", icon: FileText, label: "题库管理" },
     { href: "/superadmin/ai-config", icon: Bot, label: "AI 服务配置" },
     { href: "/superadmin/pricing", icon: DollarSign, label: "全局定价" },
     { href: "/superadmin/finance", icon: DollarSign, label: "财务数据" },
