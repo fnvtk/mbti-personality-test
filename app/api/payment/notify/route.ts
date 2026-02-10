@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { initDatabase, orderService, userService } from '@/lib/database'
+import { initDatabase, orderService, userService, distributionService } from '@/lib/database'
 
 /**
  * POST /api/payment/notify
@@ -39,6 +39,22 @@ export async function POST(request: NextRequest) {
       // 根据产品类型处理用户权益
       if (order.userId || order.openId) {
         await processOrderBenefits(order)
+      }
+      
+      // 自动计算分销佣金
+      try {
+        await distributionService.calculateCommission(orderId)
+        console.log(`✅ 订单 ${orderId} 佣金计算完成`)
+      } catch (commError) {
+        console.error(`⚠️ 订单 ${orderId} 佣金计算失败:`, commError)
+        // 佣金计算失败不影响支付结果
+      }
+      
+      // 自动结算超期佣金
+      try {
+        await distributionService.autoSettleCommissions()
+      } catch (settleError) {
+        console.error('⚠️ 自动结算佣金失败:', settleError)
       }
       
       return NextResponse.json({

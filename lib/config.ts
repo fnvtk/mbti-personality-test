@@ -1,11 +1,9 @@
 export const dbConfig = {
-  connectionString:
-    process.env.POSTGRES_URL ||
-    "postgresql://mbti_owner:npg_XaJv15dkqwuD@ep-fragrant-union-a4ndg6o8-pooler.us-east-1.aws.neon.tech/mbti?sslmode=require",
+  connectionString: process.env.MONGODB_URI || "mongodb://localhost:27017/mbti_test",
 }
 
 export const apiConfig = {
-  baseUrl: process.env.API_BASE_URL || "https://ai-pandora.xyz",
+  baseUrl: process.env.API_BASE_URL || "http://localhost:3000",
 }
 
 export const authConfig = {
@@ -19,11 +17,13 @@ export const blobConfig = {
 
 export const aiConfig = {
   groqApiKey: process.env.GROQ_API_KEY || "",
+  geminiApiKey: process.env.GEMINI_API_KEY || "",
+  // Coze已弃用，保留字段兼容
   cozeApiKey: process.env.COZE_API_KEY || "",
   cozeBotId: process.env.COZE_BOT_ID || "",
 }
 
 export const groqConfig = {
   apiKey: process.env.GROQ_API_KEY || "",
-  model: "llama2-70b-4096",
+  model: "llama3-8b-8192",
 }

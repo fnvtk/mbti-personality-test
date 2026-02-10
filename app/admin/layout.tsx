@@ -5,7 +5,8 @@ import { useRouter, usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { 
   LayoutDashboard, Users, Settings, LogOut, DollarSign, 
-  Home, ChevronRight, Menu, X, Shield, Database
+  Home, ChevronRight, Menu, X, Shield, Database,
+  Share2, ShoppingCart
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -32,6 +33,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { href: "/admin/dashboard", icon: LayoutDashboard, label: "数据概览" },
     { href: "/admin/users", icon: Users, label: "用户管理" },
+    { href: "/admin/orders", icon: ShoppingCart, label: "订单管理" },
+    { href: "/admin/distribution", icon: Share2, label: "分销管理" },
     { href: "/admin/pricing", icon: DollarSign, label: "定价管理" },
     { href: "/admin/database", icon: Database, label: "数据库" },
     { href: "/admin", icon: Settings, label: "系统设置" },
@@ -61,7 +64,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.push("/superadmin")} className="text-purple-600 text-xs">
+            <Button variant="ghost" size="sm" onClick={() => router.push("/superadmin")} className="text-indigo-600 text-xs font-medium">
               超管端
             </Button>
             <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="text-gray-500 text-xs">

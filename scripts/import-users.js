@@ -1,5 +1,5 @@
-// 从KR_人才库导入125个高质量用户到MBTI系统
-// 运行方式: docker exec datacenter_mongodb mongosh < /scripts/import-users.js
+// 从KR_人才库导入150个高质量用户到MBTI系统
+// 运行方式: docker exec datacenter_mongodb mongosh -u admin -p admin123 --authenticationDatabase admin < /scripts/import-users.js
 
 // 连接MBTI数据库
 const mbtiDB = db.getSiblingDB('mbti_test')
@@ -36,11 +36,11 @@ function genDimensionScores(mbtiType) {
 
 print('📋 开始从KR_人才库导入用户到MBTI系统...')
 
-// 从51JOB获取125条有邮箱和手机的高质量数据
+// 从51JOB获取150条有邮箱和手机的高质量数据
 const users = sourceDB['51JOB'].find(
   { email: { $ne: null, $ne: '' }, mob: { $ne: null, $ne: '' } },
   { cname: 1, gender: 1, birth: 1, region: 1, email: 1, mob: 1, industry: 1, remark: 1, salary: 1 }
-).limit(125).toArray()
+).limit(150).toArray()
 
 print(`找到 ${users.length} 条用户数据`)
 

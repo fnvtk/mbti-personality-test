@@ -2,6 +2,24 @@
 alwaysApply: true
 ---
 
-mbti 小程序AppID(小程序ID)	wx3d15ed02e98b04e3
+# 灵犀 | MBTI 项目规则
 
-mbti AppSecret(小程序密钥):a3ccdf829584b7f85143b68c4b6f7528
+## 必读 Skill
+开发本项目前，必须先读取灵犀 Skill：`.cursor/skills/mbti-project-manager/SKILL.md`
+灵犀是本项目的唯一开发入口，包含项目管理、技术规范、核心代码知识、进度跟踪。
+
+## 执行流程
+思考 → 拆解 → 读取灵犀上下文 → 按步执行 → 每步总结 → 验证结果
+每次对话结束：更新进度 + 沉淀经验 + 复盘总结
+
+## 编码规范
+- TypeScript + 中文注释 + Shadcn UI + Tailwind CSS
+- 必须使用 Skeleton 骨架屏（禁止白屏）
+- iOS 毛玻璃风格，主题色 #FFF5F7
+- 敏感信息走环境变量
+
+## 项目凭证
+- 小程序 AppID: wx3d15ed02e98b04e3
+- 小程序 AppSecret: a3ccdf829584b7f85143b68c4b6f7528
+- 微信支付商户号: 1318592501
+- 域名: ai-pandora.xyz

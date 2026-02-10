@@ -5,6 +5,7 @@ import { connectDB, isConnected } from './db'
 import User, { IUser } from './models/User'
 import TestResult, { ITestResult } from './models/TestResult'
 import Order from './models/Order'
+import { Commission, Withdrawal, DistributionConfig } from './models/Distribution'
 
 // 内存存储（MongoDB不可用时的降级方案）
 interface InMemoryStore {
@@ -29,19 +30,21 @@ let initialized = false
  * 尝试连接MongoDB，失败则使用内存存储
  */
 export async function initDatabase() {
-  if (initialized) return
-  initialized = true
+  if (initialized && isConnected()) return
   
   // 无论如何先初始化内存数据（保底）
   initMemoryData()
 
-  // 异步尝试连接MongoDB（不阻塞请求）
-  connectDB().then(() => {
+  // 等待MongoDB连接完成（最多5秒超时）
+  try {
+    await connectDB()
     console.log('✅ 数据库初始化成功（MongoDB模式）')
-    ensureSuperAdmin().catch(e => console.error('创建管理员失败:', e))
-  }).catch(error => {
+    await ensureSuperAdmin().catch(e => console.error('创建管理员失败:', e))
+  } catch (error) {
     console.warn('⚠️ MongoDB连接失败，继续使用内存存储模式')
-  })
+  }
+  
+  initialized = true
 }
 
 /**
@@ -204,7 +207,8 @@ export const userService = {
         if (filters.search) {
           query.$or = [
             { username: { $regex: filters.search, $options: 'i' } },
-            { email: { $regex: filters.search, $options: 'i' } }
+            { email: { $regex: filters.search, $options: 'i' } },
+            { phone: { $regex: filters.search, $options: 'i' } }
           ]
         }
         
@@ -543,11 +547,723 @@ export function getDatabase() {
   return dbProxy
 }
 
+// ==================== 分销服务 ====================
+
+export const distributionService = {
+  /**
+   * 获取分销配置
+   */
+  async getConfig() {
+    try {
+      if (isConnected()) {
+        let config = await DistributionConfig.findOne({ configKey: 'default' })
+        if (!config) {
+          // 创建默认配置
+          config = await DistributionConfig.create({
+            configKey: 'default',
+            level1Rate: 20,
+            level2Rate: 10,
+            productRates: [
+              { productType: 'vip', level1Rate: 20, level2Rate: 10 },
+              { productType: 'single_test', level1Rate: 30, level2Rate: 15 },
+              { productType: 'test_count', level1Rate: 20, level2Rate: 10 },
+              { productType: 'enterprise', level1Rate: 30, level2Rate: 15 },
+            ],
+            minWithdrawAmount: 1000,
+            withdrawFeeRate: 0,
+            autoSettleDays: 7,
+            levelThresholds: [
+              { level: '普通分销商', minTeamSize: 0, minTotalSales: 0, bonusRate: 0 },
+              { level: '白银分销商', minTeamSize: 10, minTotalSales: 100000, bonusRate: 2 },
+              { level: '黄金分销商', minTeamSize: 50, minTotalSales: 500000, bonusRate: 5 },
+              { level: '钻石分销商', minTeamSize: 200, minTotalSales: 2000000, bonusRate: 8 },
+            ],
+            enabled: true,
+            level2Enabled: true
+          })
+        }
+        return config
+      }
+      // 降级返回默认配置
+      return {
+        level1Rate: 20,
+        level2Rate: 10,
+        productRates: [],
+        minWithdrawAmount: 1000,
+        withdrawFeeRate: 0,
+        autoSettleDays: 7,
+        levelThresholds: [],
+        enabled: true,
+        level2Enabled: true
+      }
+    } catch (error) {
+      console.error('获取分销配置失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 更新分销配置
+   */
+  async updateConfig(data: any) {
+    try {
+      if (isConnected()) {
+        return await DistributionConfig.findOneAndUpdate(
+          { configKey: 'default' },
+          { ...data, updatedAt: new Date() },
+          { new: true, upsert: true }
+        )
+      }
+      return null
+    } catch (error) {
+      console.error('更新分销配置失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 绑定邀请关系
+   */
+  async bindInviter(userId: string, inviteCode: string) {
+    try {
+      if (!isConnected()) return { success: false, message: '数据库未连接' }
+      
+      // 查找邀请人
+      const inviter = await User.findOne({ inviteCode })
+      if (!inviter) return { success: false, message: '邀请码无效' }
+      
+      // 查找当前用户
+      const user = await User.findById(userId)
+      if (!user) return { success: false, message: '用户不存在' }
+      
+      // 不能绑定自己
+      if (inviter._id.toString() === userId) return { success: false, message: '不能绑定自己' }
+      
+      // 已经有邀请人了
+      if (user.inviterId) return { success: false, message: '已绑定邀请人' }
+      
+      // 防止循环：检查邀请人的上级是否是自己
+      if (inviter.inviterId === userId) return { success: false, message: '不能互相邀请' }
+      
+      // 绑定关系
+      await User.findByIdAndUpdate(userId, {
+        inviterId: inviter._id.toString(),
+        inviterCode: inviteCode
+      })
+      
+      // 更新邀请人团队数据
+      await User.findByIdAndUpdate(inviter._id, {
+        $inc: { teamSize: 1, totalTeamSize: 1 },
+        isDistributor: true,
+        distributorSince: inviter.distributorSince || new Date()
+      })
+      
+      // 如果邀请人也有上级，更新上级的总团队数
+      if (inviter.inviterId) {
+        await User.findByIdAndUpdate(inviter.inviterId, {
+          $inc: { totalTeamSize: 1 }
+        })
+      }
+      
+      return { success: true, message: '绑定成功', inviterName: inviter.username }
+    } catch (error) {
+      console.error('绑定邀请关系失败:', error)
+      return { success: false, message: '绑定失败' }
+    }
+  },
+
+  /**
+   * 计算并创建佣金（支付成功后调用）
+   */
+  async calculateCommission(orderId: string) {
+    try {
+      if (!isConnected()) return null
+      
+      const order = await Order.findOne({ orderId })
+      if (!order || !order.userId) return null
+      
+      // 获取购买者信息
+      const buyer = await User.findById(order.userId)
+      if (!buyer || !buyer.inviterId) return null  // 没有邀请人，不计算佣金
+      
+      // 获取分销配置
+      const config = await this.getConfig()
+      if (!config || !config.enabled) return null
+      
+      // 获取产品专属佣金比例
+      let level1Rate = config.level1Rate
+      let level2Rate = config.level2Rate
+      const productConfig = config.productRates?.find(
+        (p: any) => p.productType === order.productType
+      )
+      if (productConfig) {
+        level1Rate = productConfig.level1Rate
+        level2Rate = productConfig.level2Rate
+      }
+      
+      const results = []
+      
+      // 一级佣金（直推）
+      const level1Amount = Math.floor(order.amount * level1Rate / 100)
+      if (level1Amount > 0) {
+        const commission1 = await Commission.create({
+          commissionId: `comm_${Date.now()}_l1_${Math.random().toString(36).substr(2, 6)}`,
+          distributorId: buyer.inviterId,
+          orderId: order.orderId,
+          buyerId: order.userId,
+          buyerName: buyer.username || '',
+          orderAmount: order.amount,
+          commissionRate: level1Rate,
+          commissionAmount: level1Amount,
+          level: 1,
+          productType: order.productType,
+          productDetail: order.productDetail || '',
+          status: 'pending'
+        })
+        results.push(commission1)
+        
+        // 更新一级推荐人余额
+        await User.findByIdAndUpdate(buyer.inviterId, {
+          $inc: {
+            frozenBalance: level1Amount,
+            totalSales: order.amount
+          }
+        })
+        
+        // 更新订单分销信息
+        await Order.findOneAndUpdate({ orderId }, {
+          referrerId: buyer.inviterId,
+          referrerCode: buyer.inviterCode,
+          commissionAmount: level1Amount,
+          commissionStatus: 'pending'
+        })
+      }
+      
+      // 二级佣金（间推）
+      if (config.level2Enabled) {
+        const inviter = await User.findById(buyer.inviterId)
+        if (inviter && inviter.inviterId) {
+          const level2Amount = Math.floor(order.amount * level2Rate / 100)
+          if (level2Amount > 0) {
+            const commission2 = await Commission.create({
+              commissionId: `comm_${Date.now()}_l2_${Math.random().toString(36).substr(2, 6)}`,
+              distributorId: inviter.inviterId,
+              orderId: order.orderId,
+              buyerId: order.userId,
+              buyerName: buyer.username || '',
+              orderAmount: order.amount,
+              commissionRate: level2Rate,
+              commissionAmount: level2Amount,
+              level: 2,
+              productType: order.productType,
+              productDetail: order.productDetail || '',
+              status: 'pending'
+            })
+            results.push(commission2)
+            
+            // 更新二级推荐人余额
+            await User.findByIdAndUpdate(inviter.inviterId, {
+              $inc: { frozenBalance: level2Amount }
+            })
+            
+            // 更新订单二级分销信息
+            await Order.findOneAndUpdate({ orderId }, {
+              level2ReferrerId: inviter.inviterId,
+              level2CommissionAmount: level2Amount
+            })
+          }
+        }
+      }
+      
+      return results
+    } catch (error) {
+      console.error('计算佣金失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 结算佣金（自动结算或手动结算）
+   */
+  async settleCommission(commissionId: string) {
+    try {
+      if (!isConnected()) return null
+      
+      const commission = await Commission.findOne({ commissionId })
+      if (!commission || commission.status !== 'pending') return null
+      
+      // 更新佣金状态
+      await Commission.findOneAndUpdate({ commissionId }, {
+        status: 'settled',
+        settledAt: new Date()
+      })
+      
+      // 将冻结余额转为可提现余额
+      await User.findByIdAndUpdate(commission.distributorId, {
+        $inc: {
+          frozenBalance: -commission.commissionAmount,
+          withdrawableBalance: commission.commissionAmount,
+          totalEarnings: commission.commissionAmount
+        }
+      })
+      
+      return commission
+    } catch (error) {
+      console.error('结算佣金失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 批量结算超期佣金
+   */
+  async autoSettleCommissions() {
+    try {
+      if (!isConnected()) return 0
+      
+      const config = await this.getConfig()
+      if (!config) return 0
+      
+      const settleDate = new Date()
+      settleDate.setDate(settleDate.getDate() - config.autoSettleDays)
+      
+      const pendingCommissions = await Commission.find({
+        status: 'pending',
+        createdAt: { $lte: settleDate }
+      })
+      
+      let settledCount = 0
+      for (const comm of pendingCommissions) {
+        await this.settleCommission(comm.commissionId)
+        settledCount++
+      }
+      
+      return settledCount
+    } catch (error) {
+      console.error('批量结算佣金失败:', error)
+      return 0
+    }
+  },
+
+  /**
+   * 获取用户佣金记录
+   */
+  async getUserCommissions(userId: string, page = 1, limit = 20, status?: string) {
+    try {
+      if (isConnected()) {
+        const query: any = { distributorId: userId }
+        if (status) query.status = status
+        
+        const total = await Commission.countDocuments(query)
+        const commissions = await Commission.find(query)
+          .sort({ createdAt: -1 })
+          .skip((page - 1) * limit)
+          .limit(limit)
+        
+        return { commissions, total, page, limit, pages: Math.ceil(total / limit) }
+      }
+      return { commissions: [], total: 0, page, limit, pages: 0 }
+    } catch (error) {
+      return { commissions: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+
+  /**
+   * 获取用户分销统计
+   */
+  async getUserDistributionStats(userId: string) {
+    try {
+      if (!isConnected()) return null
+      
+      const user = await User.findById(userId)
+      if (!user) return null
+      
+      // 今日佣金
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const todayCommissions = await Commission.aggregate([
+        { $match: { distributorId: userId, createdAt: { $gte: today } } },
+        { $group: { _id: null, total: { $sum: '$commissionAmount' }, count: { $sum: 1 } } }
+      ])
+      
+      // 本月佣金
+      const monthStart = new Date()
+      monthStart.setDate(1)
+      monthStart.setHours(0, 0, 0, 0)
+      const monthCommissions = await Commission.aggregate([
+        { $match: { distributorId: userId, createdAt: { $gte: monthStart } } },
+        { $group: { _id: null, total: { $sum: '$commissionAmount' }, count: { $sum: 1 } } }
+      ])
+      
+      // 直推团队
+      const directTeam = await User.countDocuments({ inviterId: userId })
+      
+      // 间推团队
+      const directMembers = await User.find({ inviterId: userId }).select('_id')
+      const directIds = directMembers.map(m => m._id.toString())
+      const indirectTeam = directIds.length > 0 
+        ? await User.countDocuments({ inviterId: { $in: directIds } })
+        : 0
+      
+      return {
+        totalEarnings: user.totalEarnings || 0,
+        withdrawableBalance: user.withdrawableBalance || 0,
+        frozenBalance: user.frozenBalance || 0,
+        totalWithdrawn: user.totalWithdrawn || 0,
+        todayEarnings: todayCommissions[0]?.total || 0,
+        todayOrders: todayCommissions[0]?.count || 0,
+        monthEarnings: monthCommissions[0]?.total || 0,
+        monthOrders: monthCommissions[0]?.count || 0,
+        directTeam,
+        indirectTeam,
+        totalTeam: directTeam + indirectTeam,
+        totalSales: user.totalSales || 0,
+        distributionLevel: user.distributionLevel || 'normal',
+        inviteCode: user.inviteCode || ''
+      }
+    } catch (error) {
+      console.error('获取分销统计失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 获取用户团队成员
+   */
+  async getTeamMembers(userId: string, level: 1 | 2 = 1, page = 1, limit = 20) {
+    try {
+      if (!isConnected()) return { members: [], total: 0, page, limit }
+      
+      let query: any
+      if (level === 1) {
+        query = { inviterId: userId }
+      } else {
+        // 二级：先找一级成员，再找他们的下线
+        const directMembers = await User.find({ inviterId: userId }).select('_id')
+        const directIds = directMembers.map(m => m._id.toString())
+        query = { inviterId: { $in: directIds } }
+      }
+      
+      const total = await User.countDocuments(query)
+      const members = await User.find(query)
+        .select('username avatar phone createdAt totalSales teamSize')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+      
+      return { members, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      return { members: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+
+  /**
+   * 创建提现申请
+   */
+  async createWithdrawal(userId: string, amount: number, method: string, account?: string, realName?: string) {
+    try {
+      if (!isConnected()) return { success: false, message: '数据库未连接' }
+      
+      const user = await User.findById(userId)
+      if (!user) return { success: false, message: '用户不存在' }
+      
+      const config = await this.getConfig()
+      if (!config) return { success: false, message: '配置获取失败' }
+      
+      // 检查最低提现金额
+      if (amount < config.minWithdrawAmount) {
+        return { success: false, message: `最低提现${config.minWithdrawAmount / 100}元` }
+      }
+      
+      // 检查余额
+      if (amount > (user.withdrawableBalance || 0)) {
+        return { success: false, message: '余额不足' }
+      }
+      
+      // 计算手续费
+      const fee = Math.floor(amount * config.withdrawFeeRate / 100)
+      const actualAmount = amount - fee
+      
+      // 创建提现记录
+      const withdrawal = await Withdrawal.create({
+        withdrawalId: `wd_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
+        userId,
+        amount: actualAmount,
+        method: method || 'wechat',
+        account: account || '',
+        realName: realName || '',
+        status: 'pending'
+      })
+      
+      // 扣减可提现余额
+      await User.findByIdAndUpdate(userId, {
+        $inc: { withdrawableBalance: -amount }
+      })
+      
+      return { success: true, message: '提现申请已提交', withdrawal }
+    } catch (error) {
+      console.error('创建提现申请失败:', error)
+      return { success: false, message: '提现申请失败' }
+    }
+  },
+
+  /**
+   * 审核提现申请
+   */
+  async reviewWithdrawal(withdrawalId: string, approved: boolean, reviewedBy: string, remark?: string) {
+    try {
+      if (!isConnected()) return null
+      
+      const withdrawal = await Withdrawal.findOne({ withdrawalId })
+      if (!withdrawal || withdrawal.status !== 'pending') return null
+      
+      if (approved) {
+        await Withdrawal.findOneAndUpdate({ withdrawalId }, {
+          status: 'approved',
+          reviewedBy,
+          reviewedAt: new Date(),
+          remark: remark || '审核通过'
+        })
+        
+        // 更新用户已提现金额
+        await User.findByIdAndUpdate(withdrawal.userId, {
+          $inc: { totalWithdrawn: withdrawal.amount }
+        })
+      } else {
+        // 退回余额
+        await Withdrawal.findOneAndUpdate({ withdrawalId }, {
+          status: 'rejected',
+          reviewedBy,
+          reviewedAt: new Date(),
+          remark: remark || '审核未通过'
+        })
+        
+        await User.findByIdAndUpdate(withdrawal.userId, {
+          $inc: { withdrawableBalance: withdrawal.amount }
+        })
+      }
+      
+      return withdrawal
+    } catch (error) {
+      console.error('审核提现失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 获取提现记录列表
+   */
+  async getWithdrawals(filters: any = {}, page = 1, limit = 20) {
+    try {
+      if (!isConnected()) return { withdrawals: [], total: 0, page, limit }
+      
+      const query: any = {}
+      if (filters.userId) query.userId = filters.userId
+      if (filters.status) query.status = filters.status
+      
+      const total = await Withdrawal.countDocuments(query)
+      const withdrawals = await Withdrawal.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+      
+      return { withdrawals, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      return { withdrawals: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+
+  /**
+   * 获取分销总览统计（管理后台用）
+   */
+  async getOverviewStats() {
+    try {
+      if (!isConnected()) return null
+      
+      // 分销商总数
+      const totalDistributors = await User.countDocuments({ isDistributor: true })
+      
+      // 今日新增分销商
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const newDistributorsToday = await User.countDocuments({
+        isDistributor: true,
+        distributorSince: { $gte: today }
+      })
+      
+      // 总佣金
+      const totalCommissions = await Commission.aggregate([
+        { $match: { status: { $in: ['pending', 'confirmed', 'settled'] } } },
+        { $group: { _id: null, total: { $sum: '$commissionAmount' } } }
+      ])
+      
+      // 今日佣金
+      const todayCommissions = await Commission.aggregate([
+        { $match: { createdAt: { $gte: today }, status: { $in: ['pending', 'confirmed', 'settled'] } } },
+        { $group: { _id: null, total: { $sum: '$commissionAmount' }, count: { $sum: 1 } } }
+      ])
+      
+      // 待结算佣金
+      const pendingCommissions = await Commission.aggregate([
+        { $match: { status: 'pending' } },
+        { $group: { _id: null, total: { $sum: '$commissionAmount' }, count: { $sum: 1 } } }
+      ])
+      
+      // 待审核提现
+      const pendingWithdrawals = await Withdrawal.aggregate([
+        { $match: { status: 'pending' } },
+        { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } }
+      ])
+      
+      // 已完成提现
+      const completedWithdrawals = await Withdrawal.aggregate([
+        { $match: { status: { $in: ['approved', 'completed'] } } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ])
+      
+      // 最近7天佣金趋势
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      const dailyCommissions = await Commission.aggregate([
+        { $match: { createdAt: { $gte: sevenDaysAgo } } },
+        {
+          $group: {
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+            total: { $sum: '$commissionAmount' },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { _id: 1 } }
+      ])
+      
+      // 分销商等级分布
+      const levelDistribution = await User.aggregate([
+        { $match: { isDistributor: true } },
+        { $group: { _id: '$distributionLevel', count: { $sum: 1 } } }
+      ])
+      
+      // 产品佣金分布
+      const productCommissions = await Commission.aggregate([
+        { $group: { _id: '$productType', total: { $sum: '$commissionAmount' }, count: { $sum: 1 } } },
+        { $sort: { total: -1 } }
+      ])
+      
+      return {
+        totalDistributors,
+        newDistributorsToday,
+        totalCommissionAmount: totalCommissions[0]?.total || 0,
+        todayCommissionAmount: todayCommissions[0]?.total || 0,
+        todayCommissionCount: todayCommissions[0]?.count || 0,
+        pendingCommissionAmount: pendingCommissions[0]?.total || 0,
+        pendingCommissionCount: pendingCommissions[0]?.count || 0,
+        pendingWithdrawAmount: pendingWithdrawals[0]?.total || 0,
+        pendingWithdrawCount: pendingWithdrawals[0]?.count || 0,
+        completedWithdrawAmount: completedWithdrawals[0]?.total || 0,
+        dailyCommissions,
+        levelDistribution,
+        productCommissions
+      }
+    } catch (error) {
+      console.error('获取分销总览统计失败:', error)
+      return null
+    }
+  },
+
+  /**
+   * 获取分销商列表（管理后台用）
+   */
+  async getDistributors(page = 1, limit = 20, filters: any = {}) {
+    try {
+      if (!isConnected()) return { distributors: [], total: 0, page, limit }
+      
+      const query: any = { isDistributor: true }
+      if (filters.level) query.distributionLevel = filters.level
+      if (filters.search) {
+        query.$or = [
+          { username: { $regex: filters.search, $options: 'i' } },
+          { phone: { $regex: filters.search, $options: 'i' } },
+          { inviteCode: { $regex: filters.search, $options: 'i' } }
+        ]
+      }
+      
+      const total = await User.countDocuments(query)
+      const distributors = await User.find(query)
+        .select('username avatar phone inviteCode distributionLevel totalEarnings withdrawableBalance frozenBalance teamSize totalTeamSize totalSales distributorSince createdAt')
+        .sort({ totalEarnings: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+      
+      return { distributors, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      return { distributors: [], total: 0, page, limit, pages: 0 }
+    }
+  },
+
+  /**
+   * 获取所有佣金记录（管理后台用）
+   */
+  async getAllCommissions(page = 1, limit = 20, filters: any = {}) {
+    try {
+      if (!isConnected()) return { commissions: [], total: 0, page, limit }
+      
+      const query: any = {}
+      if (filters.status) query.status = filters.status
+      if (filters.level) query.level = filters.level
+      if (filters.productType) query.productType = filters.productType
+      if (filters.distributorId) query.distributorId = filters.distributorId
+      
+      const total = await Commission.countDocuments(query)
+      const commissions = await Commission.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+      
+      return { commissions, total, page, limit, pages: Math.ceil(total / limit) }
+    } catch (error) {
+      return { commissions: [], total: 0, page, limit, pages: 0 }
+    }
+  }
+}
+
 export default {
   initDatabase,
   userService,
   testResultService,
   orderService,
   photoService,
+  distributionService,
   getDatabase,
+}
+
+// ==================== Legacy 兼容导出 ====================
+// 5-19-ai 前端页面需要的类型定义
+export interface User {
+  id: string
+  name: string
+  nickname?: string
+  phone?: string
+  email?: string
+  team?: string
+  createdAt: number
+  updatedAt: number
+  tags: string[]
+  photos: any[]
+  testResults: any[]
+  faceAnalysis?: any
+}
+
+export interface TestResult {
+  id: string
+  userId: string
+  testType: string
+  result: any
+  date: string
+}
+
+export interface Photo {
+  id: string
+  userId: string
+  url: string
+  angle: string
+  uploadedAt: number
 }

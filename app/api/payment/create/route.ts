@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     await initDatabase()
     
     const body = await request.json()
-    const { orderId, amount, description, productType, paymentMethod, openId } = body
+    const { orderId, amount, description, productType, paymentMethod, openId, referrerCode } = body
     
     // 验证参数
     if (!orderId || !amount || !description) {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
     
-    // 保存订单到数据库
+    // 保存订单到数据库（携带分销推荐信息）
     const order = await orderService.createOrder({
       orderId,
       amount,
@@ -97,7 +97,9 @@ export async function POST(request: NextRequest) {
       description,
       openId: openId || '',
       userId: body.userId || '',
-      status: 'pending'
+      status: 'pending',
+      referrerCode: referrerCode || '',
+      source: referrerCode ? 'invite' : 'direct'
     })
     
     // 构建微信统一下单参数
