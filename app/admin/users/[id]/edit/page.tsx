@@ -1,228 +1,163 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft } from "lucide-react"
-import { getDatabase, type User } from "@/lib/database"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowLeft, Save } from "lucide-react"
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+// 用户编辑页 - 通过API读写MongoDB
+export default function UserEditPage() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
+  const params = useParams()
+  const userId = params.id as string
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [formData, setFormData] = useState({
-    name: "",
-    nickname: "",
-    phone: "",
-    email: "",
-    team: "",
+  const [form, setForm] = useState({
+    username: '', phone: '', email: '', gender: '',
+    region: '', industry: '', bio: '',
+    mbtiType: '', pdpType: '', discType: '',
+    role: 'user', status: 'active'
   })
 
-  useEffect(() => {
-    loadUser()
-  }, [params.id])
+  useEffect(() => { fetchUser() }, [userId])
 
-  const loadUser = async () => {
+  async function fetchUser() {
     try {
-      setLoading(true)
-      const db = getDatabase()
-      const userData = db.getUserById(params.id)
-
-      if (!userData) {
-        alert("用户不存在")
-        router.push("/admin/users")
-        return
+      const res = await fetch(`/api/admin/users/${userId}`)
+      const data = await res.json()
+      if (data.code === 200 && data.data.user) {
+        const u = data.data.user
+        setForm({
+          username: u.username || '',
+          phone: u.phone || '',
+          email: u.email || '',
+          gender: u.gender || '',
+          region: u.region || '',
+          industry: u.industry || '',
+          bio: u.bio || '',
+          mbtiType: u.mbtiType || '',
+          pdpType: u.pdpType || '',
+          discType: u.discType || '',
+          role: u.role || 'user',
+          status: u.status || 'active'
+        })
       }
-
-      setUser(userData)
-      setFormData({
-        name: userData.name || "",
-        nickname: userData.nickname || "",
-        phone: userData.phone || "",
-        email: userData.email || "",
-        team: userData.team || "",
-      })
     } catch (error) {
-      console.error("Error loading user:", error)
-      alert("加载用户信息失败")
+      console.error('加载用户失败:', error)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSave = async () => {
-    if (!formData.name.trim()) {
-      alert("请输入姓名")
-      return
-    }
-
+  async function handleSave() {
+    setSaving(true)
     try {
-      setSaving(true)
-      const db = getDatabase()
-      const updatedUser = db.updateUser(params.id, {
-        name: formData.name,
-        nickname: formData.nickname,
-        phone: formData.phone,
-        email: formData.email,
-        team: formData.team,
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
       })
-
-      if (updatedUser) {
-        alert("保存成功")
-        router.push(`/admin/users/${params.id}`)
+      const data = await res.json()
+      if (data.code === 200) {
+        alert('保存成功')
+        router.push(`/admin/users/${userId}`)
       } else {
-        alert("保存失败")
+        alert('保存失败: ' + (data.message || ''))
       }
     } catch (error) {
-      console.error("Error saving user:", error)
-      alert("保存失败")
+      alert('保存失败')
     } finally {
       setSaving(false)
     }
   }
 
-  const handleCancel = () => {
-    router.push(`/admin/users/${params.id}`)
-  }
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-600" />
+    </div>
+  )
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">加载中...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return null
-  }
+  const Field = ({ label, field, type = "text" }: { label: string, field: keyof typeof form, type?: string }) => (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+      <Input
+        type={type}
+        value={form[field]}
+        onChange={(e) => setForm({ ...form, [field]: e.target.value })}
+      />
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* 页面头部 */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={handleCancel} className="text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">编辑用户</h1>
-                <p className="text-sm text-gray-500 mt-1">修改用户基本信息</p>
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={handleCancel} disabled={saving}>
-                取消
-              </Button>
-              <Button onClick={handleSave} disabled={saving} className="bg-purple-600 hover:bg-purple-700">
-                {saving ? "保存中..." : "保存"}
-              </Button>
-            </div>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <h1 className="text-xl font-bold">编辑用户</h1>
+      </div>
+
+      <Card>
+        <CardHeader><CardTitle className="text-sm">基本信息</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          <Field label="姓名" field="username" />
+          <Field label="手机号" field="phone" />
+          <Field label="邮箱" field="email" />
+          <Field label="性别" field="gender" />
+          <Field label="地区" field="region" />
+          <Field label="行业" field="industry" />
+          <div className="col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">简介</label>
+            <textarea
+              className="w-full border rounded-md px-3 py-2 text-sm min-h-[80px]"
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+            />
           </div>
+        </CardContent>
+      </Card>
 
-          {/* 基本信息表单 */}
-          <div className="space-y-6">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">基本信息</h2>
-              <div className="text-sm text-gray-500 mb-4">用户ID: {user.id}</div>
+      <Card>
+        <CardHeader><CardTitle className="text-sm">测试结果</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-3 gap-4">
+          <Field label="MBTI类型" field="mbtiType" />
+          <Field label="PDP类型" field="pdpType" />
+          <Field label="DISC类型" field="discType" />
+        </CardContent>
+      </Card>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    姓名 <span className="text-red-500">*</span>
-                  </label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="请输入姓名"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">昵称</label>
-                  <Input
-                    value={formData.nickname}
-                    onChange={(e) => setFormData({ ...formData, nickname: e.target.value })}
-                    placeholder="请输入昵称"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">手机号</label>
-                  <Input
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="请输入手机号"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
-                  <Input
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="请输入邮箱"
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">团队</label>
-                  <Input
-                    value={formData.team}
-                    onChange={(e) => setFormData({ ...formData, team: e.target.value })}
-                    placeholder="请输入团队"
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* 创建和更新时间 */}
-            <div className="pt-6 border-t">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">创建时间：</span>
-                  <span className="text-gray-900">
-                    {new Date(user.createdAt).toLocaleString("zh-CN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-500">更新时间：</span>
-                  <span className="text-gray-900">
-                    {new Date(user.updatedAt).toLocaleString("zh-CN", {
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                    })}
-                  </span>
-                </div>
-              </div>
-            </div>
+      <Card>
+        <CardHeader><CardTitle className="text-sm">权限设置</CardTitle></CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">角色</label>
+            <select className="w-full border rounded-md px-3 py-2 text-sm" value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}>
+              <option value="user">普通用户</option>
+              <option value="admin">管理员</option>
+              <option value="superadmin">超级管理员</option>
+            </select>
           </div>
-        </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">状态</label>
+            <select className="w-full border rounded-md px-3 py-2 text-sm" value={form.status}
+              onChange={(e) => setForm({ ...form, status: e.target.value })}>
+              <option value="active">正常</option>
+              <option value="inactive">未激活</option>
+              <option value="banned">已封禁</option>
+            </select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-3">
+        <Button variant="outline" onClick={() => router.back()}>取消</Button>
+        <Button onClick={handleSave} disabled={saving} className="bg-purple-600 hover:bg-purple-700">
+          <Save className="h-4 w-4 mr-1" />
+          {saving ? '保存中...' : '保存'}
+        </Button>
       </div>
     </div>
   )

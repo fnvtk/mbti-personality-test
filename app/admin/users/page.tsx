@@ -390,10 +390,7 @@ export default function AdminUsersPage() {
                     地区/行业
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    状态
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    创建时间
+                    测试时间
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     操作
@@ -439,9 +436,6 @@ export default function AdminUsersPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(user.status)}
-                      </td>
-                      <td className="px-6 py-4">
                         <div className="text-sm text-gray-900">
                           {user.createdAt
                             ? new Date(user.createdAt).toLocaleString("zh-CN", {
@@ -451,7 +445,7 @@ export default function AdminUsersPage() {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })
-                            : "未知"}
+                            : "未测试"}
                         </div>
                       </td>
                       <td className="px-6 py-4">

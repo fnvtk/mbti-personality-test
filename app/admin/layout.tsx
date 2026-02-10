@@ -36,7 +36,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/orders", icon: ShoppingCart, label: "订单管理" },
     { href: "/admin/distribution", icon: Share2, label: "分销管理" },
     { href: "/admin/pricing", icon: DollarSign, label: "定价管理" },
-    { href: "/admin/database", icon: Database, label: "数据库" },
     { href: "/admin", icon: Settings, label: "系统设置" },
   ]
 

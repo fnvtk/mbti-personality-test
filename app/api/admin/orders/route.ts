@@ -1,73 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { initDatabase, orderService } from '@/lib/database'
-import { isConnected } from '@/lib/db'
-import Order from '@/lib/models/Order'
 
 /**
  * GET /api/admin/orders
- * 获取订单数据（管理后台）
- * type=stats 获取统计 | type=list 获取列表
+ * 获取订单列表和统计（从MongoDB读取真实数据）
  */
 export async function GET(request: NextRequest) {
   try {
     await initDatabase()
     
     const searchParams = request.nextUrl.searchParams
-    const type = searchParams.get('type') || 'stats'
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
+    const status = searchParams.get('status') || ''
+    const productType = searchParams.get('productType') || ''
+    const search = searchParams.get('search') || ''
     
-    // 统计数据
-    if (type === 'stats') {
-      const stats = await orderService.getStats()
-      return NextResponse.json({ code: 200, data: stats })
-    }
+    // 获取统计数据
+    const stats = await orderService.getStats()
     
-    // 订单列表
-    if (type === 'list') {
-      const status = searchParams.get('status') || ''
-      const productType = searchParams.get('productType') || ''
-      const search = searchParams.get('search') || ''
-      
+    // 获取订单列表（真实数据库查询）
+    let orders: any[] = []
+    let total = 0
+    
+    try {
+      // 尝试从MongoDB获取真实订单
+      const { isConnected } = require('@/lib/db')
       if (isConnected()) {
+        const Order = require('@/lib/models/Order').default
         const query: any = {}
         if (status) query.status = status
         if (productType) query.productType = productType
         if (search) {
           query.$or = [
             { orderId: { $regex: search, $options: 'i' } },
-            { userId: { $regex: search, $options: 'i' } },
-            { openId: { $regex: search, $options: 'i' } }
+            { userId: { $regex: search, $options: 'i' } }
           ]
         }
         
-        const total = await Order.countDocuments(query)
-        const orders = await Order.find(query)
+        total = await Order.countDocuments(query)
+        orders = await Order.find(query)
           .sort({ createdAt: -1 })
           .skip((page - 1) * limit)
           .limit(limit)
-        
-        return NextResponse.json({
-          code: 200,
-          data: { orders, total, page, limit, pages: Math.ceil(total / limit) }
-        })
+          .lean()
       }
-      
-      return NextResponse.json({
-        code: 200,
-        data: { orders: [], total: 0, page, limit, pages: 0 }
-      })
+    } catch (dbError) {
+      console.warn('MongoDB订单查询失败:', dbError)
     }
     
-    // 默认返回统计
-    const stats = await orderService.getStats()
-    return NextResponse.json({ code: 200, data: stats })
+    return NextResponse.json({
+      code: 200,
+      data: {
+        stats,
+        orders,
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit)
+      }
+    })
     
   } catch (error) {
-    console.error('获取订单数据失败:', error)
+    console.error('获取订单列表失败:', error)
     return NextResponse.json({
       code: 500,
-      message: '获取订单数据失败'
+      message: '获取订单列表失败'
     }, { status: 500 })
   }
 }
